@@ -56,7 +56,7 @@ async function loadLichCuaToi() {
         const data = await res.json();
 
         if (!Array.isArray(data) || data.length === 0) {
-            lichList.innerHTML = '<tr><td colspan="6">Bạn chưa có lịch khám nào.</td></tr>';
+            lichList.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Bạn chưa có đơn đặt homestay nào.</td></tr>';
             return;
         }
 
@@ -64,24 +64,24 @@ async function loadLichCuaToi() {
             const status = String(l.trangThai || "").toLowerCase();
             return `
             <tr>
-                <td>${escapeHtml(l.tenBacSi)}</td>
+                <td><strong>${escapeHtml(l.tenBacSi)}</strong></td>
                 <td>${escapeHtml(l.tenKhoa)}</td>
                 <td>${escapeHtml(formatNgay(l.ngayKham))}</td>
                 <td>${escapeHtml(String(l.gioKham || "").slice(0, 5))}</td>
-                <td>${escapeHtml(l.trangThai)}</td>
-                <td>${status === 'chờ xác nhận' ? `<button class="huy" onclick="huyLich(${Number(l.idLichKham)})">Hủy</button>` : ''}</td>
+                <td><span class="badge ${status === 'đã xác nhận' ? 'badge-success' : ''}">${escapeHtml(l.trangThai)}</span></td>
+                <td>${status === 'chờ xác nhận' ? `<button class="huy" onclick="huyLich(${Number(l.idLichKham)})">Hủy đặt</button>` : ''}</td>
             </tr>
         `;
         }).join("");
 
     } catch (err) {
         console.error(err);
-        lichList.innerHTML = '<tr><td colspan="6">Lỗi khi tải lịch khám!</td></tr>';
+        lichList.innerHTML = '<tr><td colspan="6" style="text-align:center;">Lỗi khi tải danh sách đặt homestay!</td></tr>';
     }
 }
 
 async function huyLich(idLichKham) {
-    if (!confirm("Bạn có chắc chắn muốn hủy lịch này?")) return;
+    if (!confirm("Bạn có chắc chắn muốn hủy đơn đặt homestay này không?")) return;
 
     try {
         const res = await fetch("http://localhost:3000/api/huy-lich", {
@@ -94,7 +94,7 @@ async function huyLich(idLichKham) {
         if (data.success) loadLichCuaToi();
     } catch(err) {
         console.error(err);
-        alert("Hủy lịch thất bại!");
+        alert("Hủy đặt homestay thất bại!");
     }
 }
 

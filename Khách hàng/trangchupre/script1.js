@@ -56,10 +56,10 @@ async function sendMessage() {
 		if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
 		const data = await response.json();
-		botMsg.textContent = "ICare: " + (data.reply || "");
+		botMsg.textContent = "StayEasy: " + (data.reply || "");
 	} catch (error) {
 		console.error("Error:", error);
-		botMsg.textContent = "⚠️ Chatbot đang tắt hoặc lỗi kết nối (cổng 8000).";
+		botMsg.textContent = "⚠️ Trợ lý StayEasy đang ngoại tuyến (cổng 8000). Quý khách vui lòng gọi Hotline 1900 8899.";
 	}
 
 	chatBody.scrollTop = chatBody.scrollHeight;

@@ -313,7 +313,7 @@ function hasStrongPassword(password) {
 
 function validateMedicalHistoryRefs(idBacSi, idKhoa, idHoSoYTe, callback) {
   if (!isValidId(idBacSi) || !isValidId(idKhoa) || !isValidId(idHoSoYTe)) {
-    return callback({ status: 400, message: "ID bác sĩ, khoa hoặc hồ sơ y tế không hợp lệ!" });
+    return callback({ status: 400, message: "ID phòng, loại phòng hoặc hồ sơ khách không hợp lệ!" });
   }
 
   const sql = `
@@ -325,10 +325,10 @@ function validateMedicalHistoryRefs(idBacSi, idKhoa, idHoSoYTe, callback) {
     if (err) return callback({ status: 500, message: "Lỗi kiểm tra dữ liệu liên quan!" });
     const row = rows[0] || {};
     if (!row.doctorInDepartment) {
-      return callback({ status: 400, message: "Bác sĩ không thuộc khoa đã chọn!" });
+      return callback({ status: 400, message: "Phòng nghỉ không thuộc loại phòng đã chọn!" });
     }
     if (!row.medicalRecordExists) {
-      return callback({ status: 400, message: "Hồ sơ y tế không tồn tại!" });
+      return callback({ status: 400, message: "Hồ sơ khách hàng không tồn tại!" });
     }
     callback(null);
   });
@@ -637,17 +637,17 @@ app.get("/api/lich-da-dat", (req, res) => {
 });
 
 
-// ================== API ĐẶT LỊCH KHÁM (KHÁCH HÀNG - CẦN XÁC THỰC) ==================
+// ================== API ĐẶT PHÒNG (KHÁCH HÀNG - CẦN XÁC THỰC) ==================
 
 app.post("/api/dat-lich", authenticateToken, (req, res) => {
   let { hoTen, lyDo, idBacSi, idKhoa, ngayKham, gioKham } = req.body;
 
   if (req.user.role !== "customer") {
-    return res.status(403).json({ message: "Chỉ tài khoản khách hàng được đặt lịch qua chức năng này!" });
+    return res.status(403).json({ message: "Chỉ tài khoản khách hàng được đặt phòng qua chức năng này!" });
   }
 
   if (!hoTen || !idBacSi || !ngayKham || !gioKham) {
-    return res.status(400).json({ message: "Thiếu thông tin đặt lịch!" });
+    return res.status(400).json({ message: "Thiếu thông tin đặt phòng!" });
   }
 
   // IDOR FIX: Bắt buộc dùng idKH từ token
@@ -656,19 +656,19 @@ app.post("/api/dat-lich", authenticateToken, (req, res) => {
   hoTen = escapeHtml(hoTen);
   lyDo = escapeHtml(lyDo || "");
 
-  if (!isValidId(idBacSi)) return res.status(400).json({ message: "ID bác sĩ không hợp lệ!" });
+  if (!isValidId(idBacSi)) return res.status(400).json({ message: "ID phòng không hợp lệ!" });
 
   const formattedNgay = normalizeDateInput(ngayKham, true);
-  if (!formattedNgay) return res.status(400).json({ message: "Ngày không hợp lệ!" });
+  if (!formattedNgay) return res.status(400).json({ message: "Ngày nhận phòng không hợp lệ!" });
 
   if (isPastDate(formattedNgay)) {
-    return res.status(400).json({ message: "Không thể đặt lịch khám trong quá khứ!" });
+    return res.status(400).json({ message: "Không thể đặt phòng cho ngày trong quá khứ!" });
   }
 
   const formattedGio = normalizeTimeInput(gioKham);
-  if (!formattedGio) return res.status(400).json({ message: "Giờ không hợp lệ!" });
+  if (!formattedGio) return res.status(400).json({ message: "Giờ check-in không hợp lệ!" });
 
-  // Nếu client không gửi idKhoa (chọn "Tất cả chuyên khoa"), lấy từ bác sĩ
+  // Nếu client không gửi idKhoa, lấy từ phòng
   const resolveDoctorSql = isValidId(idKhoa)
     ? "SELECT idBacSi, idKhoa FROM BACSI WHERE idBacSi = ? AND idKhoa = ?"
     : "SELECT idBacSi, idKhoa FROM BACSI WHERE idBacSi = ?";
@@ -680,20 +680,20 @@ app.post("/api/dat-lich", authenticateToken, (req, res) => {
     connection.beginTransaction((txErr) => {
       if (txErr) {
         connection.release();
-        return res.status(500).json({ message: "Đặt lịch thất bại!" });
+        return res.status(500).json({ message: "Đặt phòng thất bại!" });
       }
 
       connection.query(resolveDoctorSql, resolveParams, (errBsKhoa, bsKhoaResult) => {
         if (errBsKhoa) {
           return connection.rollback(() => {
             connection.release();
-            res.status(500).json({ message: "Lỗi kiểm tra bác sĩ!" });
+            res.status(500).json({ message: "Lỗi kiểm tra thông tin phòng!" });
           });
         }
         if (bsKhoaResult.length === 0) {
           return connection.rollback(() => {
             connection.release();
-            res.status(400).json({ message: "Bác sĩ không thuộc khoa đã chọn hoặc không tồn tại!" });
+            res.status(400).json({ message: "Phòng không thuộc loại phòng đã chọn hoặc không tồn tại!" });
           });
         }
 
@@ -708,13 +708,13 @@ app.post("/api/dat-lich", authenticateToken, (req, res) => {
           if (errDup) {
             return connection.rollback(() => {
               connection.release();
-              res.status(500).json({ message: "Lỗi kiểm tra trùng lịch!" });
+              res.status(500).json({ message: "Lỗi kiểm tra trùng lịch đặt phòng!" });
             });
           }
           if (dupResult.length > 0) {
             return connection.rollback(() => {
               connection.release();
-              res.status(400).json({ message: "Bác sĩ đã có lịch khám vào khung giờ này! Vui lòng chọn giờ khác." });
+              res.status(400).json({ message: "Phòng đã có khách đặt vào khung giờ này! Vui lòng chọn giờ hoặc phòng khác." });
             });
           }
 
@@ -730,7 +730,7 @@ app.post("/api/dat-lich", authenticateToken, (req, res) => {
                 console.error("❌ Lỗi khi insert LICHKHAM:", err);
                 return connection.rollback(() => {
                   connection.release();
-                  res.status(500).json({ message: "Đặt lịch thất bại!" });
+                  res.status(500).json({ message: "Đặt phòng thất bại!" });
                 });
               }
 
@@ -738,12 +738,12 @@ app.post("/api/dat-lich", authenticateToken, (req, res) => {
                 if (commitErr) {
                   return connection.rollback(() => {
                     connection.release();
-                    res.status(500).json({ message: "Đặt lịch thất bại!" });
+                    res.status(500).json({ message: "Đặt phòng thất bại!" });
                   });
                 }
                 connection.release();
-                logActivity("ĐẶT LỊCH KHÁM", `Bệnh nhân ${hoTen} đặt lịch ngày ${formattedNgay}`, idKH);
-                res.json({ success: true, message: "Đặt lịch khám thành công!", idLichKham: result.insertId });
+                logActivity("ĐẶT PHÒNG", `Khách hàng ${hoTen} đặt phòng ngày ${formattedNgay}`, idKH);
+                res.json({ success: true, message: "Đặt phòng StayEasy thành công!", idLichKham: result.insertId });
               });
             }
           );
@@ -787,11 +787,11 @@ app.get("/api/lich-user/:idKH", authenticateToken, (req, res) => {
   });
 });
 
-// ✅ Hủy lịch - CẦN XÁC THỰC + IDOR FIX
+// ✅ Hủy đặt phòng - CẦN XÁC THỰC + IDOR FIX
 app.post("/api/huy-lich", authenticateToken, (req, res) => {
   const { idLichKham } = req.body;
   if (!idLichKham) return res.status(400).json({ success: false, message: "Thiếu idLichKham!" });
-  if (!isValidId(idLichKham)) return res.status(400).json({ success: false, message: "ID lịch khám không hợp lệ!" });
+  if (!isValidId(idLichKham)) return res.status(400).json({ success: false, message: "ID đặt phòng không hợp lệ!" });
 
   const sqlGetInfo = `
     SELECT lk.idKH, lk.ngayKham, lk.trangThai, kh.hoTen 
@@ -801,34 +801,34 @@ app.post("/api/huy-lich", authenticateToken, (req, res) => {
   `;
   db.query(sqlGetInfo, [idLichKham], (err, results) => {
     if (err) {
-      console.error("❌ Lỗi truy vấn thông tin hủy lịch:", err);
-      return res.status(500).json({ success: false, message: "Lỗi máy chủ khi hủy lịch!" });
+      console.error("❌ Lỗi truy vấn thông tin hủy đặt phòng:", err);
+      return res.status(500).json({ success: false, message: "Lỗi máy chủ khi hủy đặt phòng!" });
     }
     if (results.length === 0) {
-      return res.status(404).json({ success: false, message: "Không tìm thấy lịch khám!" });
+      return res.status(404).json({ success: false, message: "Không tìm thấy đơn đặt phòng!" });
     }
 
     const { hoTen, idKH, ngayKham, trangThai } = results[0];
 
-    // ✅ IDOR FIX: Chỉ hủy được lịch của chính mình (hoặc admin)
+    // ✅ IDOR FIX: Chỉ hủy được đơn đặt của chính mình (hoặc admin)
     if (req.user.role !== "admin" && !sameId(req.user.id, idKH)) {
-      return res.status(403).json({ success: false, message: "Bạn không có quyền hủy lịch khám của người khác!" });
+      return res.status(403).json({ success: false, message: "Bạn không có quyền hủy đơn đặt phòng của người khác!" });
     }
     if (String(trangThai || "").toLowerCase() === "đã hủy") {
-      return res.status(400).json({ success: false, message: "Lịch khám này đã được hủy trước đó!" });
+      return res.status(400).json({ success: false, message: "Đơn đặt phòng này đã được hủy trước đó!" });
     }
     if (ngayKham && isPastDate(String(ngayKham).slice(0, 10))) {
-      return res.status(400).json({ success: false, message: "Không thể hủy lịch khám đã qua ngày!" });
+      return res.status(400).json({ success: false, message: "Không thể hủy đơn đặt phòng đã qua ngày nhận!" });
     }
 
     const sqlUpdate = `UPDATE LICHKHAM SET trangThai = 'đã hủy' WHERE idLichKham = ?`;
     db.query(sqlUpdate, [idLichKham], (errUpdate) => {
       if (errUpdate) {
-        console.error("❌ Lỗi cập nhật hủy lịch:", errUpdate);
-        return res.status(500).json({ success: false, message: "Hủy lịch thất bại!" });
+        console.error("❌ Lỗi cập nhật hủy đặt phòng:", errUpdate);
+        return res.status(500).json({ success: false, message: "Hủy đặt phòng thất bại!" });
       }
-      logActivity("HỦY LỊCH", `Bệnh nhân ${hoTen} hủy lịch khám #${idLichKham}`, idKH);
-      res.json({ success: true, message: "✅ Hủy lịch thành công!" });
+      logActivity("HỦY PHÒNG", `Khách hàng ${hoTen} hủy đơn đặt phòng #${idLichKham}`, idKH);
+      res.json({ success: true, message: "✅ Hủy đặt phòng thành công!" });
     });
   });
 });
@@ -1775,5 +1775,6 @@ app.get("/api/hoatdong", authenticateToken, requireAdmin, (req, res) => {
 
 // ================== START SERVER ==================
 app.listen(PORT, () => {
-  console.log(`🌐 Server chạy tại http://localhost:${PORT}`);
+  console.log(`🌐 StayEasy Web Server chạy tại http://localhost:${PORT}`);
+  console.log(`🏡 Hệ thống Quản trị Homestay StayEasy sẵn sàng phục vụ!`);
 });

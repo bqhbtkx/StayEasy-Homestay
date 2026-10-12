@@ -4,16 +4,16 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>MedAdmin — Admin Full Mockup (Tailwind)</title>
+	<title>StayEasy — Hệ thống Quản trị Homestay Nghỉ Dưỡng</title>
 	<script src="https://cdn.tailwindcss.com"></script>
 	<style>
 		/* small custom styles */
 		.sidebar {
-			min-width: 260px;
+			min-width: 270px;
 		}
 
 		.active-item {
-			background: linear-gradient(90deg, #f8fafc, #eef2f7);
+			background: linear-gradient(90deg, #1e3a8a, #1e40af);
 		}
 
 		.table-fixed thead th {
@@ -27,65 +27,60 @@
 <body class="bg-slate-50 text-slate-800">
 	<div class="h-screen flex">
 		<!-- SIDEBAR -->
-		<aside class="sidebar bg-slate-800 text-slate-100 p-4 flex flex-col">
+		<aside class="sidebar bg-slate-900 text-slate-100 p-4 flex flex-col shadow-xl">
 			<div class="flex items-center gap-3 px-2 mb-6">
-				<div class="w-10 h-10 bg-teal-400 rounded-md flex items-center justify-center font-bold text-slate-900">
-					MD
+				<div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center font-black text-slate-950 shadow-md">
+					SE
 				</div>
 				<div>
-					<div class="text-lg font-semibold">MedAdmin</div>
-					<div class="text-sm text-slate-300">Hệ thống quản lý y tế</div>
+					<div class="text-lg font-bold tracking-wide text-amber-400">StayEasy Admin</div>
+					<div class="text-xs text-slate-400">Quản lý Homestay Nghỉ Dưỡng</div>
 				</div>
 			</div>
 
 			<nav class="flex-1 space-y-1">
 				<button data-page="dashboard"
-					class="w-full text-left rounded-lg px-3 py-2 flex items-center gap-3 hover:bg-slate-700 ">
-					<span>🏠</span><span>Dashboard</span>
+					class="w-full text-left rounded-lg px-3 py-2.5 flex items-center gap-3 hover:bg-slate-800 transition">
+					<span>🏡</span><span>Tổng quan Homestay</span>
 				</button>
 				<button data-page="records"
-					class="w-full text-left rounded-lg px-3 py-2 flex items-center gap-3 hover:bg-slate-700 bg-slate-700">
-					<span>📋</span><span>Quản lý Hồ sơ y tế</span>
+					class="w-full text-left rounded-lg px-3 py-2.5 flex items-center gap-3 hover:bg-slate-800 bg-slate-800 transition">
+					<span>📋</span><span>Hồ sơ khách lưu trú</span>
 				</button>
 				<button data-page="history"
-					class="w-full text-left rounded-lg px-3 py-2 flex items-center gap-3 hover:bg-slate-700">
-					<span>🕒</span><span>Bảo trì Lịch sử khám bệnh</span>
+					class="w-full text-left rounded-lg px-3 py-2.5 flex items-center gap-3 hover:bg-slate-800 transition">
+					<span>🕒</span><span>Lịch sử lưu trú & Hóa đơn</span>
 				</button>
 
 				<button data-page="appointments"
-					class="w-full text-left rounded-lg px-3 py-2 flex items-center gap-3 hover:bg-slate-700">
-					<span>📅</span><span>Quản lý Lịch khám</span>
+					class="w-full text-left rounded-lg px-3 py-2.5 flex items-center gap-3 hover:bg-slate-800 transition">
+					<span>📅</span><span>Quản lý Đặt Homestay</span>
 				</button>
 				<button data-page="doctors"
-					class="w-full text-left rounded-lg px-3 py-2 flex items-center gap-3 hover:bg-slate-700">
-					<span>👨‍⚕️</span><span>Bảo trì Bác sĩ</span>
+					class="w-full text-left rounded-lg px-3 py-2.5 flex items-center gap-3 hover:bg-slate-800 transition">
+					<span>🏡</span><span>Quản lý Căn / Phòng</span>
 				</button>
 				<button data-page="departments"
-					class="w-full text-left rounded-lg px-3 py-2 flex items-center gap-3 hover:bg-slate-700">
-					<span>🏥</span><span>Bảo trì Khoa</span>
+					class="w-full text-left rounded-lg px-3 py-2.5 flex items-center gap-3 hover:bg-slate-800 transition">
+					<span>🪵</span><span>Quản lý Loại hình Homestay</span>
 				</button>
 
 				<button data-page="accounts"
-					class="w-full text-left rounded-lg px-3 py-2 flex items-center gap-3 hover:bg-slate-700">
-					<span>👥</span><span>Quản lý Tài khoản</span>
+					class="w-full text-left rounded-lg px-3 py-2.5 flex items-center gap-3 hover:bg-slate-800 transition">
+					<span>👥</span><span>Quản lý Khách hàng & Thành viên</span>
 				</button>
 			</nav>
 
-			<div class="mt-4">
+			<div class="mt-4 border-t border-slate-800 pt-3">
 				<button id="logoutBtn"
-					class="w-full text-left rounded-lg px-3 py-2 flex items-center gap-3 hover:bg-slate-700">
+					class="w-full text-left rounded-lg px-3 py-2 flex items-center gap-3 hover:bg-red-600/20 text-red-400 transition">
 					<span>📤</span><span>Đăng xuất</span>
 				</button>
 				<script>
 					const logoutBtn = document.getElementById("logoutBtn");
 					if (logoutBtn) {
-						logoutBtn.addEventListener('click', (e) => {
-							e.preventDefault();
-							localStorage.removeItem("loggedIn");
-							localStorage.removeItem("token");
-							localStorage.removeItem("adminId");
-							localStorage.removeItem("userId");
-							localStorage.removeItem("userName");
+						logoutBtn.addEventListener("click", () => {
+							localStorage.clear();
 							const onApiHost = /:(3000)$/.test(location.host) || location.pathname.startsWith("/admin-panel");
 							window.location.href = onApiHost
 								? "/customer/trangchupre/trangchu1.html"
@@ -96,79 +91,95 @@
 			</div>
 		</aside>
 
-		<!-- MAIN -->
-		<main class="flex-1 overflow-auto p-6">
+		<!-- MAIN CONTENT -->
+		<main class="flex-1 flex flex-col overflow-auto">
 			<!-- TOPBAR -->
-			<header class="flex items-center justify-between mb-6">
+			<header class="bg-white border-b px-6 py-4 flex items-center justify-between">
 				<div class="flex items-center gap-4">
-					<h2 id="pageTitle" class="text-2xl font-semibold">
-						Quản lý Hồ sơ y tế
+					<h2 id="pageTitle" class="text-xl font-bold text-slate-800">
+						Tổng quan Homestay
 					</h2>
-					<div class="text-sm text-slate-500">Admin panel — MedAdmin</div>
 				</div>
-
+				<div class="flex items-center gap-4">
+					<div class="text-right">
+						<div class="text-sm font-semibold text-slate-700">Quản lý / Chủ Homestay</div>
+						<div class="text-xs text-emerald-600 font-medium">● Đang trực tuyến</div>
+					</div>
+					<div class="w-9 h-9 rounded-full bg-amber-500 text-slate-900 font-bold flex items-center justify-center">
+						SE
+					</div>
+				</div>
 			</header>
 
 			<!-- PAGES CONTAINER -->
-			<section id="pages" class="space-y-6">
+			<section class="p-6 space-y-6">
 				<!-- DASHBOARD -->
-				<section data-page="dashboard" class="hidden">
-					<div class="grid grid-cols-4 gap-4 mb-4">
-						<div class="bg-white rounded-lg p-4 shadow-sm">
-							<div class="text-sm text-slate-500">Tổng hồ sơ y tế</div>
-							<h2 id="totalRecords" class="text-2xl font-bold text-teal-600">0</h2>
+				<section data-page="dashboard" class="space-y-6">
+					<div class="grid grid-cols-4 gap-4">
+						<div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+							<div class="text-xs font-semibold uppercase text-slate-400 mb-1">Tổng hồ sơ khách</div>
+							<h2 id="totalRecords" class="text-3xl font-extrabold text-blue-600">0</h2>
+							<div class="text-xs text-slate-500 mt-2">Hồ sơ khách lưu trú & thành viên</div>
 						</div>
-						<div class="bg-white rounded-lg p-4 shadow-sm">
-							<div class="text-sm text-slate-500">Số bác sĩ</div>
-							<h2 id="totalDoctors" class="text-2xl font-bold text-blue-600">0</h2>
+						<div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+							<div class="text-xs font-semibold uppercase text-slate-400 mb-1">Tổng số căn homestay</div>
+							<h2 id="totalDoctors" class="text-3xl font-extrabold text-amber-600">0</h2>
+							<div class="text-xs text-slate-500 mt-2">Căn/Phòng đang đón tiếp khách</div>
 						</div>
-						<div class="bg-white rounded-lg p-4 shadow-sm">
-							<div class="text-sm text-slate-500">Lịch khám hôm nay</div>
-							<h2 id="todayAppointments" class="text-2xl font-bold text-orange-600">0</h2>
+						<div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+							<div class="text-xs font-semibold uppercase text-slate-400 mb-1">Check-in hôm nay</div>
+							<h2 id="todayAppointments" class="text-3xl font-extrabold text-emerald-600">0</h2>
+							<div class="text-xs text-slate-500 mt-2">Lượt nhận phòng trong ngày</div>
 						</div>
-						<div class="bg-white rounded-lg p-4 shadow-sm">
-							<div class="text-sm text-slate-500">Lịch chờ xác nhận</div>
-							<h2 id="newContacts" class="text-2xl font-bold text-red-600">0</h2>
+						<div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+							<div class="text-xs font-semibold uppercase text-slate-400 mb-1">Đơn chờ xác nhận</div>
+							<h2 id="newContacts" class="text-3xl font-extrabold text-rose-600">0</h2>
+							<div class="text-xs text-slate-500 mt-2">Cần xác nhận đơn đặt phòng</div>
 						</div>
 					</div>
 
-					<div class="grid grid-cols-3 gap-4">
-						<div class="col-span-2 bg-white rounded-lg p-4 shadow-sm">
-							<h3 class="font-semibold mb-2">Biểu đồ lượt khám 30 ngày gần nhất</h3>
-							<div id="chartPlaceholder" class="h-48">
+					<div class="grid grid-cols-3 gap-6">
+						<div class="col-span-2 bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+							<h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+								<span>📈</span> Biểu đồ lượt đặt homestay 30 ngày gần nhất
+							</h3>
+							<div id="chartPlaceholder" class="h-56">
 								<canvas id="chartCanvas"></canvas>
 							</div>
 						</div>
 
-						<!-- 🆕 HOẠT ĐỘNG GẦN ĐÂY -->
-						<div class="bg-white rounded-lg p-4 shadow-sm">
-							<h3 class="font-semibold mb-3 text-slate-700 flex items-center gap-2">
-								<span>📋</span> Hoạt động gần đây
+						<!-- HOẠT ĐỘNG GẦN ĐÂY -->
+						<div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+							<h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+								<span>🏡</span> Nhật ký hoạt động homestay
 							</h3>
 							<div id="recentActivities"
-								class="text-sm text-slate-600 space-y-2 max-h-48 overflow-y-auto">
+								class="text-sm text-slate-600 space-y-2 max-h-56 overflow-y-auto">
 								<div class="text-slate-400 text-center py-4">Đang tải...</div>
 							</div>
 						</div>
 					</div>
 				</section>
 
-				<!-- RECORDS -->
-				<section data-page="records" class="hidden">
-					<div class="flex items-center justify-between mb-4">
-						<h3 class="text-lg font-semibold">Quản lý Hồ sơ y tế</h3>
-						<button id="openAddHosoyte" class="bg-teal-500 text-white px-3 py-2 rounded-lg">
-							➕ Thêm hồ sơ y tế
+				<!-- RECORDS: HỒ SƠ KHÁCH LƯU TRÚ -->
+				<section data-page="records" class="hidden space-y-4">
+					<div class="flex items-center justify-between">
+						<div>
+							<h3 class="text-lg font-bold text-slate-800">Quản lý Hồ sơ khách lưu trú</h3>
+							<p class="text-sm text-slate-500">Danh sách thẻ hồ sơ thành viên & khách hàng StayEasy</p>
+						</div>
+						<button id="openAddHosoyte" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm">
+							➕ Thêm hồ sơ khách
 						</button>
 					</div>
 
-					<div class="bg-white rounded-lg shadow p-4">
+					<div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 overflow-x-auto">
 						<table class="min-w-full" id="hosoyteTable">
 							<thead>
-								<tr class="bg-gray-100 text-sm">
-									<th class="p-2 text-left">ID Hồ sơ</th>
-									<th class="p-2 text-left">ID Khách hàng</th>
-									<th class="p-2 text-center">Hành động</th>
+								<tr class="bg-slate-100 text-slate-700 text-sm">
+									<th class="p-3 text-left">Mã Hồ sơ</th>
+									<th class="p-3 text-left">ID Khách hàng</th>
+									<th class="p-3 text-center">Hành động</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
@@ -176,56 +187,60 @@
 					</div>
 				</section>
 
-				<!-- MODAL: Thêm hồ sơ y tế -->
-				<div id="hosoyteModal" class="fixed inset-0 flex items-center justify-center bg-black/40 hidden">
-					<div class="bg-white rounded-lg w-11/12 max-w-md p-6 shadow-lg">
-						<div class="flex items-center justify-between mb-4 border-b pb-2">
-							<h3 class="text-lg font-semibold text-slate-700">Thêm hồ sơ y tế</h3>
-							<button id="closeHosoyteModal" class="text-slate-500 hover:text-red-500">✖️</button>
+				<!-- MODAL: Thêm hồ sơ y tế / khách -->
+				<div id="hosoyteModal" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50">
+					<div class="bg-white rounded-xl w-11/12 max-w-md p-6 shadow-2xl">
+						<div class="flex items-center justify-between mb-4 border-b pb-3">
+							<h3 class="text-lg font-bold text-slate-800">Thêm hồ sơ khách lưu trú</h3>
+							<button id="closeHosoyteModal" class="text-slate-400 hover:text-slate-600">✖</button>
 						</div>
 
 						<form id="hosoyteForm" class="space-y-4">
 							<div>
-								<label class="block text-sm font-medium mb-1">ID khách hàng</label>
+								<label class="block text-sm font-medium text-slate-700 mb-1">ID khách hàng</label>
 								<input id="idKHInput" type="number"
-									class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-teal-400 outline-none"
-									placeholder="Nhập ID khách hàng" required />
+									class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+									placeholder="Nhập ID khách hàng trong hệ thống" required />
 							</div>
 
-							<div class="flex justify-end gap-2 pt-2 border-t">
+							<div class="flex justify-end gap-2 pt-3 border-t">
 								<button type="button" id="cancelHosoyte"
-									class="px-4 py-2 border rounded hover:bg-gray-100">
+									class="px-4 py-2 border rounded-lg hover:bg-slate-100 transition">
 									Hủy
 								</button>
 								<button type="submit"
-									class="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600">
-									Lưu
+									class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition shadow-sm">
+									Lưu hồ sơ
 								</button>
 							</div>
 						</form>
 					</div>
 				</div>
-				<!-- HISTORY (BẢO TRÌ LỊCH SỬ KHÁM BỆNH) -->
-				<section data-page="history" class="hidden">
-					<div class="flex items-center justify-between mb-4">
-						<h3 class="text-lg font-semibold">Bảo trì Lịch sử khám bệnh</h3>
-						<button id="openAddLS" class="bg-teal-500 text-white px-3 py-2 rounded-lg">
-							➕ Thêm lịch sử
+
+				<!-- HISTORY: LỊCH SỬ LƯU TRÚ & HÓA ĐƠN -->
+				<section data-page="history" class="hidden space-y-4">
+					<div class="flex items-center justify-between">
+						<div>
+							<h3 class="text-lg font-bold text-slate-800">Lịch sử lưu trú & Hóa đơn kỳ nghỉ</h3>
+							<p class="text-sm text-slate-500">Ghi nhận các đợt lưu trú đã hoàn tất và dịch vụ khách đã sử dụng</p>
+						</div>
+						<button id="openAddLS" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm">
+							➕ Thêm kỳ nghỉ đã hoàn tất
 						</button>
 					</div>
 
-					<div class="bg-white rounded-lg shadow p-4 overflow-x-auto">
+					<div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 overflow-x-auto">
 						<table class="min-w-full" id="lichsuTable">
 							<thead>
-								<tr class="bg-gray-100 text-sm">
-									<th class="p-2 text-left">ID</th>
-									<th class="p-2 text-left">Ngày khám</th>
-									<th class="p-2 text-left">Kết luận</th>
-									<th class="p-2 text-left">Chi tiết</th>
-									<th class="p-2 text-left">Bác sĩ</th>
-									<th class="p-2 text-left">Khoa</th>
-									<th class="p-2 text-left">Mã Hồ sơ</th>
-									<th class="p-2 text-center">Hành động</th>
+								<tr class="bg-slate-100 text-slate-700 text-sm">
+									<th class="p-3 text-left">ID</th>
+									<th class="p-3 text-left">Ngày trả phòng</th>
+									<th class="p-3 text-left">Đánh giá / Trạng thái</th>
+									<th class="p-3 text-left">Chi tiết dịch vụ & Hóa đơn</th>
+									<th class="p-3 text-left">Phòng nghỉ</th>
+									<th class="p-3 text-left">Loại phòng</th>
+									<th class="p-3 text-left">Mã Hồ sơ</th>
+									<th class="p-3 text-center">Hành động</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
@@ -233,77 +248,81 @@
 					</div>
 				</section>
 
-				<!-- MODAL: Thêm / Sửa lịch sử khám -->
-				<div id="lichsuModal" class="fixed inset-0 flex items-center justify-center bg-black/40 hidden">
-					<div class="bg-white rounded-lg w-11/12 max-w-md p-6 shadow-lg">
-						<div class="flex items-center justify-between mb-4 border-b pb-2">
-							<h3 id="lichsuTitle" class="text-lg font-semibold text-slate-700">Thêm lịch sử khám</h3>
-							<button id="closeLSModal" class="text-slate-500 hover:text-red-500">✖️</button>
+				<!-- MODAL: Thêm / Sửa lịch sử lưu trú -->
+				<div id="lichsuModal" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50">
+					<div class="bg-white rounded-xl w-11/12 max-w-lg p-6 shadow-2xl">
+						<div class="flex items-center justify-between mb-4 border-b pb-3">
+							<h3 id="lichsuTitle" class="text-lg font-bold text-slate-800">Thêm lịch sử lưu trú</h3>
+							<button id="closeLSModal" class="text-slate-400 hover:text-slate-600">✖</button>
 						</div>
 
 						<form id="lichsuForm" class="space-y-3">
 							<input type="hidden" id="idLS" />
 							<div>
-								<label class="block text-sm font-medium mb-1">Ngày khám</label>
-								<input id="ngayKhamLS" type="date" class="w-full border rounded px-3 py-2" required />
+								<label class="block text-sm font-medium mb-1">Ngày check-out (Ngày trả phòng)</label>
+								<input id="ngayKhamLS" type="date" class="w-full border rounded-lg px-3 py-2" required />
 							</div>
 							<div>
-								<label class="block text-sm font-medium mb-1">Kết luận</label>
-								<input id="ketLuanLS" type="text" class="w-full border rounded px-3 py-2" required />
+								<label class="block text-sm font-medium mb-1">Đánh giá / Tình trạng lưu trú</label>
+								<input id="ketLuanLS" type="text" placeholder="VD: Hoàn tất 3N2Đ - Khách đánh giá 5 sao" class="w-full border rounded-lg px-3 py-2" required />
 							</div>
 							<div>
-								<label class="block text-sm font-medium mb-1">Chi tiết</label>
-								<textarea id="chiTietLS" class="w-full border rounded px-3 py-2"></textarea>
+								<label class="block text-sm font-medium mb-1">Chi tiết hóa đơn & Dịch vụ đi kèm</label>
+								<textarea id="chiTietLS" placeholder="VD: Tiền phòng: 2.700.000đ, Buffet sáng, Giặt ủi..." class="w-full border rounded-lg px-3 py-2" rows="3"></textarea>
+							</div>
+							<div class="grid grid-cols-2 gap-3">
+								<div>
+									<label class="block text-sm font-medium mb-1">Loại phòng</label>
+									<select id="idKhoaLS" class="w-full border rounded-lg px-3 py-2" required></select>
+								</div>
+								<div>
+									<label class="block text-sm font-medium mb-1">Phòng nghỉ</label>
+									<select id="idBacSiLS" class="w-full border rounded-lg px-3 py-2" required></select>
+								</div>
 							</div>
 							<div>
-								<label class="block text-sm font-medium mb-1">Bác sĩ</label>
-								<select id="idBacSiLS" class="w-full border rounded px-3 py-2" required></select>
+								<label class="block text-sm font-medium mb-1">Mã Hồ sơ khách hàng</label>
+								<select id="idHoSoYTeLS" class="w-full border rounded-lg px-3 py-2" required></select>
 							</div>
-							<div>
-								<label class="block text-sm font-medium mb-1">Khoa</label>
-								<select id="idKhoaLS" class="w-full border rounded px-3 py-2" required></select>
-							</div>
-							<div>
-								<label class="block text-sm font-medium mb-1">Mã Hồ sơ y tế</label>
-								<select id="idHoSoYTeLS" class="w-full border rounded px-3 py-2" required></select>
-							</div>
-							<div class="flex justify-end gap-2 pt-2 border-t">
-								<button type="button" id="cancelLS" class="px-4 py-2 border rounded hover:bg-gray-100">
+							<div class="flex justify-end gap-2 pt-3 border-t">
+								<button type="button" id="cancelLS" class="px-4 py-2 border rounded-lg hover:bg-slate-100">
 									Hủy
 								</button>
 								<button type="submit"
-									class="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600">
-									Lưu
+									class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+									Lưu kỳ nghỉ
 								</button>
 							</div>
 						</form>
 					</div>
 				</div>
 
-
-				<!-- APPOINTMENTS -->
-				<section data-page="appointments" class="hidden">
-					<div class="flex items-center justify-between mb-4">
-						<h3 class="text-lg font-semibold">Quản lý Lịch khám</h3>
-						<button id="openAddLich" class="bg-teal-500 text-white px-3 py-2 rounded-lg">
-							➕ Thêm lịch
+				<!-- APPOINTMENTS: QUẢN LÝ ĐẶT HOMESTAY -->
+				<section data-page="appointments" class="hidden space-y-4">
+					<div class="flex items-center justify-between">
+						<div>
+							<h3 class="text-lg font-bold text-slate-800">Quản lý Đặt Homestay (Bookings)</h3>
+							<p class="text-sm text-slate-500">Xem, duyệt xác nhận hoặc hủy các yêu cầu đặt homestay của khách</p>
+						</div>
+						<button id="openAddLich" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm">
+							➕ Thêm đơn đặt homestay
 						</button>
 					</div>
 
-					<div class="bg-white rounded-lg shadow p-4">
+					<div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 overflow-x-auto">
 						<table class="min-w-full" id="lichTable">
 							<thead>
-								<tr class="bg-gray-100 text-sm">
-									<th class="p-2 text-left">ID</th>
-									<th class="p-2 text-left">ID Khách hàng</th>
-									<th class="p-2 text-left">Họ tên bệnh nhân</th>
-									<th class="p-2 text-left">Lý do</th>
-									<th class="p-2 text-left">Ngày khám</th>
-									<th class="p-2 text-left">Giờ khám</th>
-									<th class="p-2 text-left">Bác sĩ</th>
-									<th class="p-2 text-left">Khoa</th>
-									<th class="p-2 text-left">Trạng thái</th>
-									<th class="p-2 text-left">Hành động</th>
+								<tr class="bg-slate-100 text-slate-700 text-sm">
+									<th class="p-3 text-left">Mã Đặt</th>
+									<th class="p-3 text-left">ID Khách</th>
+									<th class="p-3 text-left">Khách nhận phòng</th>
+									<th class="p-3 text-left">Yêu cầu đặc biệt</th>
+									<th class="p-3 text-left">Ngày nhận</th>
+									<th class="p-3 text-left">Giờ check-in</th>
+									<th class="p-3 text-left">Căn / Phòng</th>
+									<th class="p-3 text-left">Loại hình</th>
+									<th class="p-3 text-left">Trạng thái</th>
+									<th class="p-3 text-center">Xóa</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
@@ -311,151 +330,135 @@
 					</div>
 				</section>
 
-
-				<!-- MODAL: Thêm lịch khám -->
-				<div id="lichModal" class="fixed inset-0 flex items-center justify-center bg-black/40 hidden">
-					<div class="bg-white rounded-lg w-11/12 max-w-md p-6 shadow-lg">
-						<div class="flex items-center justify-between mb-4 border-b pb-2">
-							<h3 class="text-lg font-semibold text-slate-700">Thêm lịch khám</h3>
-							<button id="closeLichModal" class="text-slate-500 hover:text-red-500">✖️</button>
+				<!-- MODAL: Thêm đơn đặt homestay -->
+				<div id="lichModal" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50">
+					<div class="bg-white rounded-xl w-11/12 max-w-lg p-6 shadow-2xl">
+						<div class="flex items-center justify-between mb-4 border-b pb-3">
+							<h3 class="text-lg font-bold text-slate-800">Thêm đơn đặt homestay mới</h3>
+							<button id="closeLichModal" class="text-slate-400 hover:text-slate-600">✖</button>
 						</div>
 
 						<form id="lichForm" class="space-y-4">
-							<div>
-								<label class="block text-sm font-medium mb-1">ID Khách hàng</label>
-								<input id="idKH" type="number"
-									class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-teal-400 outline-none"
-									placeholder="Nhập ID khách hàng" required />
+							<div class="grid grid-cols-2 gap-3">
+								<div>
+									<label class="block text-sm font-medium mb-1">ID Khách hàng</label>
+									<input id="idKH" type="number"
+										class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+										placeholder="ID khách" required />
+								</div>
+								<div>
+									<label class="block text-sm font-medium mb-1">Họ tên người nhận phòng</label>
+									<input id="hoTen" type="text"
+										class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+										placeholder="VD: Nguyễn Văn An" required />
+								</div>
 							</div>
 
 							<div>
-								<label class="block text-sm font-medium mb-1">Họ tên bệnh nhân</label>
-								<input id="hoTen" type="text"
-									class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-teal-400 outline-none"
-									placeholder="Nhập họ tên bệnh nhân" required />
-							</div>
-
-							<div>
-								<label class="block text-sm font-medium mb-1">Lý do khám</label>
+								<label class="block text-sm font-medium mb-1">Yêu cầu đặc biệt / Ghi chú</label>
 								<textarea id="lyDo"
-									class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-teal-400 outline-none"
-									placeholder="Nhập lý do khám"></textarea>
+									class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+									placeholder="VD: Yêu cầu chuẩn bị tiệc BBQ, giờ đến muộn, nôi em bé..."></textarea>
 							</div>
 
 							<div class="grid grid-cols-2 gap-3">
 								<div>
-									<label class="block text-sm font-medium mb-1">Ngày khám</label>
+									<label class="block text-sm font-medium mb-1">Ngày nhận phòng</label>
 									<input id="ngayKham" type="date"
-										class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-teal-400 outline-none"
+										class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
 										required />
 								</div>
 								<div>
-									<label class="block text-sm font-medium mb-1">Giờ khám</label>
+									<label class="block text-sm font-medium mb-1">Giờ check-in</label>
 									<input id="gioKham" type="time"
-										class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-teal-400 outline-none"
+										class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
 										required />
 								</div>
 							</div>
 
-							<div>
-								<label class="block text-sm font-medium mb-1">Khoa</label>
-								<select id="idKhoa"
-									class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-teal-400 outline-none"
-									required></select>
+							<div class="grid grid-cols-2 gap-3">
+								<div>
+									<label class="block text-sm font-medium mb-1">Loại hình homestay</label>
+									<select id="idKhoa"
+										class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+										required></select>
+								</div>
+								<div>
+									<label class="block text-sm font-medium mb-1">Căn / Phòng homestay</label>
+									<select id="idBacSi"
+										class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+										required></select>
+								</div>
 							</div>
 
-							<div>
-								<label class="block text-sm font-medium mb-1">Bác sĩ</label>
-								<select id="idBacSi"
-									class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-teal-400 outline-none"
-									required></select>
-							</div>
-
-							<div class="flex justify-end gap-2 pt-2 border-t">
+							<div class="flex justify-end gap-2 pt-3 border-t">
 								<button type="button" id="cancelLich"
-									class="px-4 py-2 border rounded hover:bg-gray-100">
+									class="px-4 py-2 border rounded-lg hover:bg-slate-100">
 									Hủy
 								</button>
 								<button type="submit"
-									class="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600">
-									Lưu
+									class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
+									Tạo đơn đặt
 								</button>
 							</div>
 						</form>
 					</div>
 				</div>
 
-
-
-				<!-- DOCTORS -->
-				<section data-page="doctors" class="hidden">
+				<!-- DOCTORS: QUẢN LÝ DANH SÁCH CĂN / PHÒNG HOMESTAY -->
+				<section data-page="doctors" class="hidden space-y-4">
 					<div class="flex items-center justify-between">
-						<h3 class="text-lg font-semibold">Bảo trì Bác sĩ</h3>
-						<button class="bg-teal-500 text-white px-3 py-2 rounded-lg">
-							➕ Thêm bác sĩ
+						<div>
+							<h3 class="text-lg font-bold text-slate-800">Quản lý Danh sách Căn / Phòng Homestay</h3>
+							<p class="text-sm text-slate-500">Danh mục căn (bungalow, nhà gỗ, áp mái, villa...), tiện nghi & mức giá</p>
+						</div>
+						<button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm">
+							➕ Thêm căn mới
 						</button>
 					</div>
 
-					<div class="mt-4 bg-white rounded-lg shadow p-4">
+					<div class="mt-4 bg-white rounded-xl shadow-sm border border-slate-100 p-4 overflow-x-auto">
 						<table class="min-w-full">
 							<thead>
-								<tr>
-									<th class="p-2 text-left">ID</th>
-									<th class="p-2 text-left">Họ tên</th>
-									<th class="p-2 text-left">Học vị</th>
-									<th class="p-2 text-left">Khoa</th>
-									<th class="p-2 text-left">Hành động</th>
+								<tr class="bg-slate-100 text-slate-700 text-sm">
+									<th class="p-3 text-left">ID</th>
+									<th class="p-3 text-left">Tên căn / phòng homestay</th>
+									<th class="p-3 text-left">Tiện nghi & Mức giá</th>
+									<th class="p-3 text-left">Loại hình homestay</th>
+									<th class="p-3 text-center">Hành động</th>
 								</tr>
 							</thead>
-
-
-							<tbody>
-								<tr class="border-t">
-									<td class="p-2">Dr. Lê Anh</td>
-									<td class="p-2">Nội</td>
-									<td class="p-2">Active</td>
-									<td class="p-2">✏️ 🗑️</td>
-								</tr>
-								<tr class="border-t">
-									<td class="p-2">Dr. Trần Văn A</td>
-									<td class="p-2">Sản</td>
-									<td class="p-2">Active</td>
-									<td class="p-2">✏️ 🗑️</td>
-								</tr>
-								<tr class="border-t">
-									<td class="p-2">Dr. Nguyễn B</td>
-									<td class="p-2">Nhi</td>
-									<td class="p-2">Inactive</td>
-									<td class="p-2">✏️ 🗑️</td>
-								</tr>
-							</tbody>
+							<tbody></tbody>
 						</table>
 					</div>
 				</section>
 
-				<!-- DEPARTMENTS -->
-				<section data-page="departments" class="hidden">
-					<div class="flex items-center justify-between mb-4">
-						<h3 class="text-lg font-semibold">Bảo trì Khoa</h3>
+				<!-- DEPARTMENTS: QUẢN LÝ LOẠI HÌNH HOMESTAY -->
+				<section data-page="departments" class="hidden space-y-4">
+					<div class="flex items-center justify-between">
 						<div>
-							<input id="searchDept" type="text" placeholder="🔍 Tìm khoa..."
-								class="border rounded px-3 py-2" />
-							<button id="openAddDept" class="bg-teal-500 text-white px-3 py-2 rounded-lg">
-								➕ Thêm khoa
+							<h3 class="text-lg font-bold text-slate-800">Quản lý Loại hình Homestay</h3>
+							<p class="text-sm text-slate-500">Các loại hình (Bungalow sân vườn, Nhà gỗ vintage, Áp mái view đồi, Villa hồ bơi...)</p>
+						</div>
+						<div class="flex items-center gap-2">
+							<input id="searchDept" type="text" placeholder="🔍 Tìm loại hình..."
+								class="border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+							<button id="openAddDept" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition shadow-sm">
+								➕ Thêm loại hình
 							</button>
-							<button id="refreshDept" class="bg-white border px-3 py-2 rounded-lg ml-2">
+							<button id="refreshDept" class="bg-white border px-3 py-2 rounded-lg text-sm hover:bg-slate-50">
 								🔄 Làm mới
 							</button>
 						</div>
 					</div>
 
-					<div class="bg-white rounded-lg shadow p-4">
+					<div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 overflow-x-auto">
 						<table id="deptTable" class="min-w-full">
 							<thead>
-								<tr class="bg-gray-100">
-									<th class="p-2 text-left">ID</th>
-									<th class="p-2 text-left">Tên Khoa</th>
-									<th class="p-2 text-left">Hành động</th>
+								<tr class="bg-slate-100 text-slate-700 text-sm">
+									<th class="p-3 text-left">Mã Loại</th>
+									<th class="p-3 text-left">Tên loại hình homestay</th>
+									<th class="p-3 text-center">Hành động</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
@@ -463,146 +466,56 @@
 					</div>
 				</section>
 
-				<!-- AI MAINTENANCE -->
-				<section data-page="ai" class="hidden">
-					<div class="flex items-center justify-between">
-						<h3 class="text-lg font-semibold">Bảo trì Tư vấn AI</h3>
-						<div class="text-sm text-slate-500">
-							Quản lý intents, mẫu hỏi/đáp
-						</div>
+				<!-- ACCOUNTS: QUẢN LÝ KHÁCH HÀNG & HỘI VIÊN -->
+				<section data-page="accounts" class="hidden space-y-4">
+					<div>
+						<h3 class="text-lg font-bold text-slate-800">Quản lý Tài khoản Khách hàng & Hội viên</h3>
+						<p class="text-sm text-slate-500">Danh sách tài khoản đã đăng ký trong hệ thống StayEasy</p>
 					</div>
 
-					<div class="mt-4 bg-white rounded-lg shadow p-4">
+					<div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 overflow-x-auto">
 						<table class="min-w-full">
 							<thead>
-								<tr>
-									<th class="p-2 text-left">Intent</th>
-									<th class="p-2 text-left">Mô tả</th>
-									<th class="p-2 text-left">Hành động</th>
+								<tr class="bg-slate-100 text-slate-700 text-sm">
+									<th class="p-3 text-left">ID</th>
+									<th class="p-3 text-left">Họ và tên</th>
+									<th class="p-3 text-left">Giới tính</th>
+									<th class="p-3 text-left">Số điện thoại</th>
+									<th class="p-3 text-center">Hành động</th>
 								</tr>
 							</thead>
-							<tbody>
-								<tr class="border-t">
-									<td class="p-2">Hẹn lịch</td>
-									<td class="p-2">Hỗ trợ đặt lịch khám</td>
-									<td class="p-2">Edit · Train</td>
-								</tr>
-								<tr class="border-t">
-									<td class="p-2">Triệu chứng đau ngực</td>
-									<td class="p-2">Hỏi về dấu hiệu đau ngực</td>
-									<td class="p-2">Edit · Train</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</section>
-
-				<!-- CONTACTS -->
-				<section data-page="contacts" class="hidden">
-					<div class="flex items-center justify-between">
-						<h3 class="text-lg font-semibold">Bảo trì Liên hệ</h3>
-						<div class="text-sm text-slate-500">Xem và xử lý phản hồi</div>
-					</div>
-
-					<div class="mt-4 bg-white rounded-lg shadow p-4">
-						<table class="min-w-full">
-							<thead>
-								<tr>
-									<th class="p-2 text-left">Email</th>
-									<th class="p-2 text-left">Nội dung</th>
-									<th class="p-2 text-left">Trạng thái</th>
-									<th class="p-2 text-left">Hành động</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr class="border-t">
-									<td class="p-2">user1@example.com</td>
-									<td class="p-2">Không nhận được mã xác thực</td>
-									<td class="p-2">Mới</td>
-									<td class="p-2">Xử lý</td>
-								</tr>
-								<tr class="border-t">
-									<td class="p-2">user2@example.com</td>
-									<td class="p-2">Yêu cầu huỷ lịch</td>
-									<td class="p-2">Đã xử lý</td>
-									<td class="p-2">—</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</section>
-
-				<!-- ACCOUNTS -->
-				<section data-page="accounts" class="hidden">
-					<div class="flex items-center justify-between">
-						<h3 class="text-lg font-semibold">Quản lý Tài khoản</h3>
-					</div>
-
-					<div class="mt-4 bg-white rounded-lg shadow p-4">
-						<table class="min-w-full">
-							<thead>
-								<tr>
-									<th class="p-2 text-left">ID</th>
-									<th class="p-2 text-left">Họ tên</th>
-									<th class="p-2 text-left">Giới tính</th>
-									<th class="p-2 text-left">Số điện thoại</th>
-									<th class="p-2 text-left">Hành động</th>
-								</tr>
-							</thead>
-							<tbody id="accountList">
-								<!-- Dữ liệu sẽ được tải từ server -->
-							</tbody>
+							<tbody id="accountList"></tbody>
 						</table>
 					</div>
 				</section>
 			</section>
 
 			<!-- FOOTER -->
-			<footer class="mt-6 text-center text-sm text-slate-400">
-				MedAdmin • Mockup — Không dùng dữ liệu thật
+			<footer class="mt-auto py-4 text-center text-xs text-slate-400 border-t bg-white">
+				StayEasy Homestay Management System • Hệ thống Quản trị Homestay Nghỉ Dưỡng
 			</footer>
 		</main>
 	</div>
 
-	<!-- MODAL: Add / Edit Record -->
-	<div id="recordModal" class="fixed inset-0 flex items-center justify-center bg-black/40 hidden">
-		<div class="bg-white rounded-lg w-11/12 md:w-2/3 p-6">
-			<div class="flex items-center justify-between mb-4">
-				<h3 class="text-lg font-semibold">Thêm / Sửa Hồ sơ</h3>
-				<button id="closeModal" class="text-slate-500">✖️</button>
+	<!-- MODAL: Add / Edit Loại hình homestay -->
+	<div id="deptModal" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50">
+		<div class="bg-white rounded-xl w-11/12 max-w-md p-6 shadow-2xl">
+			<div class="flex items-center justify-between mb-4 border-b pb-3">
+				<h3 id="deptModalTitle" class="text-lg font-bold text-slate-800">Thêm loại hình homestay</h3>
+				<button id="closeDeptModal" class="text-slate-400 hover:text-slate-600">✖</button>
 			</div>
-
-			<form id="recordForm" class="grid grid-cols-2 gap-4">
+			<form id="deptForm" class="space-y-4">
+				<input type="hidden" id="deptIdKhoa" />
 				<div>
-					<label class="text-sm">Họ tên</label>
-					<input name="name" class="w-full border rounded px-3 py-2" />
+					<label class="block text-sm font-medium text-slate-700 mb-1">Tên loại hình homestay <span class="text-red-500">*</span></label>
+					<input id="tenKhoa" class="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" placeholder="VD: Bungalow Sân Vườn, Nhà Gỗ Thông..." required />
 				</div>
-				<div>
-					<label class="text-sm">Ngày sinh</label>
-					<input name="dob" type="date" class="w-full border rounded px-3 py-2" />
-				</div>
-				<div>
-					<label class="text-sm">Giới tính</label>
-					<select name="gender" class="w-full border rounded px-3 py-2">
-						<option>Nam</option>
-						<option>Nữ</option>
-					</select>
-				</div>
-				<div>
-					<label class="text-sm">Số điện thoại</label>
-					<input name="phone" class="w-full border rounded px-3 py-2" />
-				</div>
-				<div class="col-span-2">
-					<label class="text-sm">Chẩn đoán</label>
-					<textarea name="diagnosis" class="w-full border rounded px-3 py-2" rows="3"></textarea>
-				</div>
-
-				<div class="col-span-2 flex justify-end gap-2 mt-2">
-					<button type="button" id="cancelModal" class="px-4 py-2 border rounded">
+				<div class="flex justify-end gap-2 pt-3 border-t">
+					<button type="button" id="cancelDept" class="px-4 py-2 border rounded-lg hover:bg-slate-100">
 						Hủy
 					</button>
-					<button type="submit" class="px-4 py-2 bg-teal-500 text-white rounded">
-						Lưu
+					<button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+						Lưu loại hình
 					</button>
 				</div>
 			</form>
@@ -620,7 +533,7 @@
 				: "../Khách hàng/trangchupre/trangchu1.html";
 		}
 
-		// Simple client-side navigation
+		// Client-side tab navigation
 		const navButtons = document.querySelectorAll("aside button[data-page]");
 		const pages = document.querySelectorAll("section[data-page]");
 		const title = document.getElementById("pageTitle");
@@ -633,138 +546,27 @@
 			);
 			navButtons.forEach((b) =>
 				b.dataset.page === name ?
-					b.classList.add("bg-slate-700") :
-					b.classList.remove("bg-slate-700"),
+					b.classList.add("bg-slate-800", "text-amber-400") :
+					b.classList.remove("bg-slate-800", "text-amber-400"),
 			);
-			// set title
 			const labels = {
-				dashboard: "Dashboard",
-				records: "Quản lý Hồ sơ y tế",
-				history: "Bảo trì Lịch sử khám bệnh",
-				appointments: "Quản lý Lịch khám",
-				doctors: "Bảo trì Bác sĩ",
-				departments: "Bảo trì Khoa",
-				ai: "Bảo trì Tư vấn AI",
-				contacts: "Bảo trì Liên hệ",
-				accounts: "Quản lý Tài khoản",
+				dashboard: "Tổng quan Homestay (Dashboard)",
+				records: "Quản lý Hồ sơ khách lưu trú",
+				history: "Lịch sử lưu trú & Hóa đơn",
+				appointments: "Quản lý Đặt Homestay (Bookings)",
+				doctors: "Quản lý Danh sách Căn / Phòng Homestay",
+				departments: "Quản lý Loại hình Homestay",
+				accounts: "Quản lý Tài khoản Khách hàng & Thành viên",
 			};
-			title.textContent = labels[name] || "MedAdmin";
+			if (title) title.textContent = labels[name] || "StayEasy Admin";
 		}
 
 		navButtons.forEach((b) =>
 			b.addEventListener("click", () => showPage(b.dataset.page)),
 		);
-		// default show records
-		showPage("records");
-
-		// Modal behaviour
-		const modal = document.getElementById("recordModal");
-		const addRecordBtn = document.getElementById("addRecordBtn");
-		const closeModalBtn = document.getElementById("closeModal");
-		const cancelModalBtn = document.getElementById("cancelModal");
-		if (addRecordBtn && modal) {
-			addRecordBtn.addEventListener("click", () => modal.classList.remove("hidden"));
-		}
-		if (closeModalBtn && modal) {
-			closeModalBtn.addEventListener("click", () => modal.classList.add("hidden"));
-		}
-		if (cancelModalBtn && modal) {
-			cancelModalBtn.addEventListener("click", () => modal.classList.add("hidden"));
-		}
-
-		// Simple CSV export
-		const exportCsvBtn = document.getElementById("exportCsv");
-		if (exportCsvBtn) {
-			exportCsvBtn.addEventListener("click", () => {
-				const rows = [];
-				document.querySelectorAll("#recordsTable tbody tr").forEach((tr) => {
-					const cells = Array.from(tr.querySelectorAll("td")).map((td) =>
-						td.textContent.trim(),
-					);
-					rows.push(cells.join(","));
-				});
-				const csv = [
-					"Mã,Họ tên,Tuổi,Giới tính,Bác sĩ,Ngày khám,Tình trạng",
-					...rows,
-				].join("\n");
-				const blob = new Blob([csv], {
-					type: "text/csv",
-				});
-				const url = URL.createObjectURL(blob);
-				const a = document.createElement("a");
-				a.href = url;
-				a.download = "medical_records.csv";
-				a.click();
-				URL.revokeObjectURL(url);
-			});
-		}
-
-		// simple search filter
-		const globalSearchInput = document.getElementById("globalSearch");
-		if (globalSearchInput) {
-			globalSearchInput.addEventListener("input", (e) => {
-				const q = e.target.value.toLowerCase();
-				document.querySelectorAll("#recordsTable tbody tr").forEach((tr) => {
-					const text = tr.textContent.toLowerCase();
-					tr.style.display = text.includes(q) ? "" : "none";
-				});
-			});
-		}
-
-		// sample handlers for edit/view/delete
-		document.querySelectorAll(".viewRecord").forEach((btn) =>
-			btn.addEventListener("click", (ev) => {
-				alert("Xem chi tiết (mockup)");
-			}),
-		);
-		document.querySelectorAll(".editRecord").forEach((btn) =>
-			btn.addEventListener("click", (ev) => {
-				modal.classList.remove("hidden");
-			}),
-		);
-		document.querySelectorAll(".delRecord").forEach((btn) =>
-			btn.addEventListener("click", (ev) => {
-				if (confirm("Bạn có chắc muốn xóa hồ sơ này không?")) {
-					const tr = ev.target.closest("tr");
-					tr.remove();
-				}
-			}),
-		);
-
-		// form submit (fake save)
-		const recordForm = document.getElementById("recordForm");
-		if (recordForm) {
-			recordForm.addEventListener("submit", (e) => {
-				e.preventDefault();
-				alert("Lưu hồ sơ (mockup)");
-				if (modal) modal.classList.add("hidden");
-			});
-		}
+		// Mặc định mở trang Dashboard
+		showPage("dashboard");
 	</script>
-
-	<div id="deptModal" class="fixed inset-0 flex items-center justify-center bg-black/40 hidden">
-		<div class="bg-white rounded-lg w-11/12 max-w-md p-6">
-			<div class="flex items-center justify-between mb-4">
-				<h3 id="deptModalTitle" class="text-lg font-semibold">Thêm khoa</h3>
-				<button id="closeDeptModal" class="text-slate-500">✖️</button>
-			</div>
-			<form id="deptForm" class="space-y-3">
-				<input type="hidden" id="deptIdKhoa" />
-				<div>
-					<label class="block text-sm">Tên khoa <span class="text-red-500">*</span></label>
-					<input id="tenKhoa" class="w-full border rounded px-3 py-2" required />
-				</div>
-				<div class="flex justify-end gap-2">
-					<button type="button" id="cancelDept" class="px-4 py-2 border rounded">
-						Hủy
-					</button>
-					<button type="submit" class="px-4 py-2 bg-teal-500 text-white rounded">
-						Lưu
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
 
 	<script src="admin-doctors.js"></script>
 	<script src="admin-tkhoan.js"></script>
@@ -774,7 +576,6 @@
 	<script src="admin-dashboard.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 	<script src="admin-khoa.js"></script>
-
 </body>
 
 </html>

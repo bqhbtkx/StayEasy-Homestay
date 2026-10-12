@@ -1,4 +1,5 @@
 # chatbot.py
+# Trợ lý Lễ tân Ảo StayEasy Concierge
 import os
 import glob
 import re
@@ -8,10 +9,9 @@ import time
 # ------------------------------
 # CONFIG
 # ------------------------------
-MODEL = "gemini-2.5-flash"  # dùng Gemini 2.5 Flash
-# Sử dụng đường dẫn tương đối để tự động tìm thư mục 'yte' trên máy của bạn
+MODEL = "gemini-2.5-flash"
 DATA_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "yte")
-MAX_TOKENS = 500
+MAX_TOKENS = 600
 RETRY_DELAY = 5
 MAX_RETRIES = 3
 
@@ -35,11 +35,11 @@ def retrieve_context(db, question):
         score_list.append((score, name, content))
     score_list.sort(reverse=True, key=lambda x: x[0])
     top_matches = [c for s, n, c in score_list[:3] if s > 0]
-    return "\n\n".join(top_matches) if top_matches else ""
+    return "\n\n".join(top_matches) if top_matches else "\n\n".join(db.values())
 
-class MedicalChatbot:
+class StayEasyChatbot:
     def __init__(self, model=MODEL):
-        api_key = os.getenv("GEMINI_API_KEY")  # dùng key Gemini
+        api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("⚠️ Không tìm thấy GEMINI_API_KEY trong biến môi trường!")
 
@@ -49,18 +49,17 @@ class MedicalChatbot:
         )
         self.model = model
         self.db = load_md_data(DATA_FOLDER)
-        print(f"✅ Đã load {len(self.db)} file bệnh lý.")
+        print(f"✅ Đã load {len(self.db)} tài liệu thông tin homestay StayEasy.")
 
     def ask(self, question):
         context = retrieve_context(self.db, question)
-        if not context.strip():
-            return "⚠️ Xin lỗi, không tìm thấy thông tin phù hợp."
 
         system_prompt = (
-            "Bạn là trợ lý tư vấn bệnh dựa trên dữ liệu người dùng cung cấp. "
-            "CHỈ sử dụng thông tin trong dữ liệu dưới đây để trả lời. "
-            "KHÔNG bịa, không suy diễn thêm.\n\n"
-            f"=== Dữ liệu bệnh ===\n{context}\n\n"
+            "Bạn là trợ lý ảo thân thiện StayEasy Homestay Assistant của hệ thống Homestay Nghỉ Dưỡng StayEasy. "
+            "Hãy trả lời khách hàng một cách nhiệt tình, ấm áp, gần gũi và chu đáo. "
+            "Cung cấp thông tin chính xác về các căn/phòng homestay (bungalow, nhà gỗ, áp mái, villa hồ bơi, glamping), mức giá, dịch vụ tiệc nướng BBQ, bếp tự nấu, thủ tục check-in/check-out và hotline 1900 8899. "
+            "Dựa trên dữ liệu homestay được cung cấp dưới đây:\n\n"
+            f"=== Dữ liệu StayEasy Homestay ===\n{context}\n\n"
         )
 
         for attempt in range(1, MAX_RETRIES + 1):
@@ -84,8 +83,11 @@ class MedicalChatbot:
                         print(f"⏳ Rate limit – chờ {RETRY_DELAY}s rồi thử lại...")
                         time.sleep(RETRY_DELAY)
                     else:
-                        return "⚠️ Server đang bị giới hạn tốc độ. Vui lòng thử lại sau."
+                        return "⚠️ Trợ lý StayEasy đang nhận quá nhiều yêu cầu. Quý khách vui lòng thử lại sau giây lát."
                 else:
-                    return "⚠️ Lỗi khi gọi mô hình AI. Vui lòng thử lại."
+                    return "⚠️ Trợ lý StayEasy đang bận. Quý khách vui lòng gọi Hotline 1900 8899 để được hỗ trợ ngay."
 
-        return "⚠️ Không thể kết nối Gemini sau nhiều lần thử."
+        return "⚠️ Không thể kết nối đến trợ lý StayEasy sau nhiều lần thử."
+
+# Alias để tương thích server.py
+MedicalChatbot = StayEasyChatbot

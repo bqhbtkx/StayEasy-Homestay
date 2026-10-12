@@ -1,3 +1,5 @@
+// admin-khoa.js
+// Quản lý Loại hình Homestay StayEasy
 // Tự động gửi token xác thực cho các API quản trị.
 (function() {
   if (window.__authFetchInstalled) return;
@@ -34,32 +36,32 @@ document.addEventListener("DOMContentLoaded", () => {
     return str ? str.replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m])) : "";
   }
 
-  // 📋 Load danh sách khoa
+  // 📋 Load danh sách loại hình homestay
   async function loadData() {
-    tableBody.innerHTML = `<tr><td colspan="3" class="p-2 text-gray-500">Đang tải...</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="3" class="p-3 text-gray-500 text-center">Đang tải danh sách...</td></tr>`;
     try {
       const res = await fetch(API);
       const data = await res.json();
       tableBody.innerHTML = "";
       if (!Array.isArray(data) || !data.length) {
-        tableBody.innerHTML = `<tr><td colspan="3" class="p-2 text-gray-500">Chưa có khoa nào</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="3" class="p-3 text-gray-500 text-center">Chưa có loại hình homestay nào</td></tr>`;
         return;
       }
       data.forEach((khoa) => {
         const tr = document.createElement("tr");
-        tr.classList.add("border-t");
+        tr.classList.add("border-t", "hover:bg-slate-50", "transition");
         tr.innerHTML = `
-          <td class="p-2">${escapeHtml(String(khoa.idKhoa))}</td>
-          <td class="p-2">${escapeHtml(khoa.tenKhoa)}</td>
-          <td class="p-2 text-center">
-            <button class="editBtn text-blue-600 mr-2" data-id="${khoa.idKhoa}" data-name="${encodeURIComponent(khoa.tenKhoa)}">✏️</button>
-            <button class="delBtn text-red-600" data-id="${khoa.idKhoa}">🗑️</button>
+          <td class="p-3 font-semibold text-slate-700">${escapeHtml(String(khoa.idKhoa))}</td>
+          <td class="p-3 font-medium text-blue-700">${escapeHtml(khoa.tenKhoa)}</td>
+          <td class="p-3 text-center">
+            <button class="editBtn text-blue-600 hover:text-blue-800 mr-3 transition" data-id="${khoa.idKhoa}" data-name="${encodeURIComponent(khoa.tenKhoa)}">✏️ Sửa</button>
+            <button class="delBtn text-red-600 hover:text-red-800 transition" data-id="${khoa.idKhoa}">🗑️ Xóa</button>
           </td>`;
         tableBody.appendChild(tr);
       });
     } catch (err) {
-      console.error("❌ Lỗi tải danh sách khoa:", err);
-      tableBody.innerHTML = `<tr><td colspan="3" class="text-red-600 p-2">Lỗi tải dữ liệu</td></tr>`;
+      console.error("❌ Lỗi tải danh sách loại hình:", err);
+      tableBody.innerHTML = `<tr><td colspan="3" class="text-red-600 p-3 text-center">Lỗi tải dữ liệu</td></tr>`;
     }
   }
 
@@ -68,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     openAddBtn.addEventListener("click", () => {
       form.reset();
       idInput.value = "";
-      title.textContent = "Thêm khoa";
+      title.textContent = "Thêm loại hình homestay mới";
       modal.classList.remove("hidden");
     });
   }
@@ -84,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const id = idInput.value;
     const tenKhoa = nameInput.value.trim();
-    if (!tenKhoa) return alert("Tên khoa không được để trống!");
+    if (!tenKhoa) return alert("Tên loại hình homestay không được để trống!");
 
     try {
       const method = id ? "PUT" : "POST";
@@ -95,12 +97,12 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ tenKhoa })
       });
       const data = await res.json();
-      alert(data.message || (id ? "Cập nhật thành công" : "Thêm thành công"));
+      alert(data.message || (id ? "Cập nhật thành công" : "Thêm loại hình homestay thành công"));
       modal.classList.add("hidden");
       loadData();
     } catch (err) {
-      console.error("❌ Lỗi lưu khoa:", err);
-      alert("Lỗi khi lưu khoa");
+      console.error("❌ Lỗi lưu loại hình homestay:", err);
+      alert("Lỗi khi lưu loại hình homestay");
     }
   });
 
@@ -110,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!editBtn) return;
     idInput.value = editBtn.dataset.id;
     nameInput.value = decodeURIComponent(editBtn.dataset.name);
-    title.textContent = "Sửa khoa";
+    title.textContent = "Sửa loại hình homestay";
     modal.classList.remove("hidden");
   });
 
@@ -119,34 +121,33 @@ document.addEventListener("DOMContentLoaded", () => {
     const delBtn = e.target.closest(".delBtn");
     if (!delBtn) return;
     const id = delBtn.dataset.id;
-    if (!confirm("Bạn có chắc muốn xóa khoa này không?")) return;
+    if (!confirm("Bạn có chắc muốn xóa loại hình homestay này không?")) return;
 
     try {
       const res = await fetch(`${API}/${id}`, { method: "DELETE" });
       const result = await res.json();
 
-      // Nếu cần xác nhận xóa dây chuyền
       if (result.requireConfirm && Array.isArray(result.doctors)) {
-        let msg = `${result.message}\n\nChi tiết:\n`;
+        let msg = `${result.message}\n\nChi tiết căn homestay bị ảnh hưởng:\n`;
         result.doctors.forEach(b => {
-          msg += `- ${b.hoTenBacSi} (Lịch khám: ${b.lichCount}, Lịch sử: ${b.lichsuCount})\n`;
+          msg += `- ${b.hoTenBacSi} (Đơn đặt: ${b.lichCount}, Lịch sử: ${b.lichsuCount})\n`;
         });
         msg += "\nChọn OK để xóa toàn bộ, Cancel để hủy.";
         if (confirm(msg)) {
           const forceRes = await fetch(`${API}/${id}?force=true`, { method: "DELETE" });
           const j2 = await forceRes.json();
-          alert(j2.message || "Đã xóa khoa và toàn bộ dữ liệu liên quan!");
+          alert(j2.message || "Đã xóa loại hình homestay và toàn bộ dữ liệu liên quan!");
         } else {
           alert("❎ Đã hủy thao tác xóa.");
         }
       } else {
-        alert(result.message || "🗑️ Đã xóa khoa thành công!");
+        alert(result.message || "🗑️ Đã xóa loại hình homestay thành công!");
       }
 
       loadData();
     } catch (err) {
-      console.error("❌ Lỗi xóa khoa:", err);
-      alert("Lỗi khi xóa khoa");
+      console.error("❌ Lỗi xóa loại hình homestay:", err);
+      alert("Lỗi khi xóa loại hình homestay");
     }
   });
 

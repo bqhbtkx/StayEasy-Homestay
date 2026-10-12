@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tài khoản của tôi - Icare</title>
+  <title>Tài khoản thành viên - StayEasy Homestay</title>
   <link rel="stylesheet" href="account.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -12,9 +12,9 @@
 <body>
   <header>
     <a href="trangchu1.html">
-      <img src="../Picture/logo1.png" alt="">
+      <img src="../Picture/logo1.png" alt="StayEasy Logo" style="height: 52px; object-fit: contain;">
     </a>
-    <p class="hotline">HOTLINE: <span style="color: red;">1900 6422</span></p>
+    <p class="hotline">HOTLINE HỖ TRỢ 24/7: <span style="color: #d97706; font-weight: bold;">1900 8899</span></p>
   </header>
 
   <main>
@@ -29,7 +29,7 @@
             <button class="user-info-btn" id="userNameDisplay">
               [Tên khách hàng]
             </button>
-
+            <span style="font-size: 12px; color: #d97706; margin-top: 2px;"><i class="fa fa-star"></i> Thành viên StayEasy</span>
           </div>
         </div>
 
@@ -40,24 +40,24 @@
                 <i class="fa-regular fa-user"></i> Tài khoản của tôi
               </div>
               <ul>
-                <li><a href="#profile" id="navProfile" class="nav-item active">Hồ sơ</a></li>
+                <li><a href="#profile" id="navProfile" class="nav-item active">Hồ sơ cá nhân</a></li>
                 <li><a href="#password" id="navPassword" class="nav-item">Đổi mật khẩu</a></li>
               </ul>
             </li>
 
             <li>
               <div class="nav-section">
-                <i class="fa-solid fa-file-medical"></i> Hồ sơ y tế
+                <i class="fa-solid fa-house-chimney"></i> Hồ sơ lưu trú
               </div>
               <ul>
-                <li><a href="#medical-history" id="navMedicalHistory" class="nav-item">Lịch sử khám bệnh</a></li>
+                <li><a href="#medical-history" id="navMedicalHistory" class="nav-item">Lịch sử kỳ nghỉ</a></li>
               </ul>
             </li>
 
             <li>
               <a href="#appointments" id="navAppointments" class="nav-item"
                 style="margin-top: 5px; text-decoration: none; display: flex; align-items: center;">
-                <i class="fa-regular fa-calendar-check"></i> Lịch khám
+                <i class="fa-regular fa-calendar-check"></i> Căn/Phòng đã đặt
               </a>
             </li>
           </ul>
@@ -67,14 +67,14 @@
       <div class="account-right">
 
         <section id="profile-section" class="content-section active">
-          <h2>Hồ Sơ Của Tôi</h2>
-          <div class="security-note">Quản lý thông tin hồ sơ để bảo mật tài khoản</div>
+          <h2>Hồ Sơ Thành Viên</h2>
+          <div class="security-note">Quản lý thông tin cá nhân và thông tin nhận homestay lưu trú</div>
           <hr class="dim-line">
 
           <form id="profileForm">
             <div class="info-row">
-              <label>Họ Tên</label>
-              <span id="display_hoten" class="info-display">Nguyễn Văn A</span>
+              <label>Họ và Tên</label>
+              <span id="display_hoten" class="info-display">Nguyễn Văn An</span>
               <input id="input_hoten" type="text" class="info-input hidden" />
             </div>
 
@@ -102,70 +102,67 @@
             </div>
 
             <div class="info-row">
-              <label>Căn cước công dân</label>
+              <label>Căn cước công dân (CCCD)</label>
               <span id="display_cccd" class="info-display not-available">Chưa có</span>
-              <input id="input_cccd" type="text" class="info-input hidden" placeholder="Nhập CCCD" />
+              <input id="input_cccd" type="text" class="info-input hidden" placeholder="Nhập số CCCD để check-in nhanh" />
               <button type="button" class="btn-change">Thay đổi</button>
             </div>
 
             <div class="info-row">
-              <label>Địa chỉ</label>
+              <label>Địa chỉ thường trú</label>
               <span id="display_diachi" class="info-display not-available">Chưa có</span>
               <input id="input_diachi" type="text" class="info-input hidden" placeholder="Nhập địa chỉ" />
               <button type="button" class="btn-change">Thay đổi</button>
             </div>
 
             <div class="save-area">
-              <button type="submit" id="saveProfileBtn" class="btn primary disabled" disabled>Lưu</button>
+              <button type="submit" id="saveProfileBtn" class="btn primary disabled" disabled>Lưu thay đổi</button>
               <button type="button" id="cancelEditBtn" class="btn secondary hidden">Hủy</button>
             </div>
           </form>
         </section>
 
-        <section id="password-section" class="content-section ">
+        <section id="password-section" class="content-section">
           <h2>Đổi Mật Khẩu</h2>
-          <div class="security-note">Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác</div>
+          <div class="security-note">Để bảo mật tài khoản thành viên, vui lòng không chia sẻ mật khẩu cho người khác</div>
           <hr class="dim-line">
           <form id="passForm">
             <div class="pass-row">
               <div class="pass-input">
-                <label for="pass">Mật khẩu cũ</label>
-                <input id="passOld" type="password" autocomplete="old-password" class="required-input">
+                <label for="passOld">Mật khẩu cũ</label>
+                <input id="passOld" type="password" autocomplete="old-password" class="required-input" placeholder="Nhập mật khẩu hiện tại">
                 <span class="toggle-password"><i class="fa-regular fa-eye"></i></span>
-
               </div>
               <div class="error" id="passOldErr"></div>
             </div>
 
             <div class="pass-row">
               <div class="pass-input">
-                <label for="pass">Mật khẩu mới</label>
-                <input id="passNew" type="password" autocomplete="new-password" class="required-input">
+                <label for="passNew">Mật khẩu mới</label>
+                <input id="passNew" type="password" autocomplete="new-password" class="required-input" placeholder="Tối thiểu 6 ký tự">
                 <span class="toggle-password"><i class="fa-regular fa-eye"></i></span>
-
               </div>
               <div class="error" id="passNewErr"></div>
             </div>
             <div class="pass-row">
               <div class="pass-input">
-                <label for="passConfirm">Xác nhận mật khẩu</label>
-                <input id="passConfirm" type="password" autocomplete="new-password" class="required-input">
+                <label for="passConfirm">Xác nhận mật khẩu mới</label>
+                <input id="passConfirm" type="password" autocomplete="new-password" class="required-input" placeholder="Nhập lại mật khẩu mới">
                 <span class="toggle-password"><i class="fa-regular fa-eye"></i></span>
-
               </div>
               <div class="error" id="passConfirmErr"></div>
             </div>
 
             <div class="save-area-pass">
-              <button type="submit" id="savePasswordBtn" class="btn primary disabled" disabled>Lưu</button>
+              <button type="submit" id="savePasswordBtn" class="btn primary disabled" disabled>Cập nhật mật khẩu</button>
               <button type="button" id="cancelPasswordBtn" class="btn secondary hidden">Hủy</button>
             </div>
           </form>
         </section>
 
         <section id="medical-history-section" class="content-section">
-          <h2>Hồ Sơ Y Tế</h2>
-          <div class="security-note">Xem và lưu trữ kết quả khám bệnh</div>
+          <h2>Lịch Sử Lưu Trú & Hóa Đơn</h2>
+          <div class="security-note">Theo dõi các kỳ nghỉ đã hoàn tất và dịch vụ đi kèm tại StayEasy Homestay</div>
           <hr class="dim-line">
 
           <div class="medical-record-container">
@@ -176,33 +173,33 @@
                   <i class="fa-solid fa-chevron-down"></i>
                 </button>
                 <div class="sort-menu hidden">
-                  <a href="#">Ngày khám <i class="fa-solid fa-arrow-down"></i></a>
-                  <a href="#">Ngày khám <i class="fa-solid fa-arrow-up"></i></a>
+                  <a href="#">Ngày lưu trú <i class="fa-solid fa-arrow-down"></i></a>
+                  <a href="#">Ngày lưu trú <i class="fa-solid fa-arrow-up"></i></a>
                 </div>
               </div>
               <table class="medical-history-table">
                 <thead>
                   <tr style="text-align: center;">
-                    <th style="width: 15%;text-align: center;">Ngày khám</th>
-                    <th style="width: 20%;text-align: center;">Bác sĩ</th>
-                    <th style="width: 20%;text-align: center;">Khoa</th>
-                    <th style="width: 45%;text-align: center;">Kết luận</th>
+                    <th style="width: 15%; text-align: center;">Ngày trả phòng</th>
+                    <th style="width: 25%; text-align: center;">Căn / Phòng nghỉ</th>
+                    <th style="width: 25%; text-align: center;">Loại hình homestay</th>
+                    <th style="width: 35%; text-align: center;">Đánh giá / Trạng thái</th>
                   </tr>
                 </thead>
                 <tbody>
-
                 </tbody>
               </table>
             </div>
 
             <div class="medical-record-detail">
-              <p class="detail-placeholder">Chi tiết kết quả khám</p>
+              <p class="detail-placeholder">Bấm vào một kỳ nghỉ để xem chi tiết dịch vụ & hóa đơn</p>
             </div>
           </div>
         </section>
-        <section id="appointments-section" class="content-section ">
-          <h2>Lịch Khám</h2>
-          <div class="security-note">Theo dõi lịch khám đã đặt</div>
+
+        <section id="appointments-section" class="content-section">
+          <h2>Căn / Phòng Đã Đặt</h2>
+          <div class="security-note">Theo dõi và quản lý các yêu cầu đặt phòng homestay của bạn</div>
           <hr class="dim-line">
 
           <div class="appointments-container" id="appointmentsListContainer">
@@ -216,11 +213,11 @@
             <table class="appointments-table">
               <thead>
                 <tr>
-                  <th style="width: 25%;">Bác sĩ</th>
-                  <th style="width: 25%;">Khoa</th>
-                  <th style="width: 15%;">Ngày</th>
-                  <th style="width: 10%;">Giờ</th>
-                  <th style="width: 25%;">Trạng thái</th>
+                  <th style="width: 25%;">Căn / Phòng nghỉ</th>
+                  <th style="width: 25%;">Loại hình homestay</th>
+                  <th style="width: 15%;">Ngày nhận</th>
+                  <th style="width: 12%;">Giờ nhận</th>
+                  <th style="width: 23%;">Trạng thái</th>
                 </tr>
               </thead>
               <tbody>
@@ -228,12 +225,13 @@
             </table>
 
             <p id="no-appointments-message" style="text-align: center; padding: 20px; color: #777; display: none;">
-              Bạn chưa có lịch khám nào.
+              Bạn hiện chưa có đơn đặt homestay nào.
             </p>
           </div>
+
           <div class="appointments-container" id="appointmentDetailView">
             <a href="#" class="back-to-list-link" id="backToAppointmentsList">
-              &larr; Quay lại danh sách lịch khám
+              &larr; Quay lại danh sách đặt homestay
             </a>
             
             <div class="appointment-progress-bar" id="appointmentProgressBar">
@@ -241,7 +239,7 @@
                 <div class="circle">
                   <i class="fa-solid fa-check"></i>
                 </div>
-                <p>Đã đặt lịch</p>
+                <p>Đã gửi đơn</p>
               </div>
               <div class="progress-step" data-step="chờ xác nhận" id="step_pending">
                 <div class="circle">
@@ -255,7 +253,7 @@
                 <div class="circle">
                   <i class="fa-solid fa-check"></i>
                 </div>
-                <p>Đã xác nhận</p>
+                <p>Đã xác nhận căn</p>
               </div>
               <div class="progress-line line-2" id="line2"></div>
               
@@ -269,36 +267,36 @@
             <div id="appointmentDetailContent" class="detail-box">
               <div id="appointmentForm">
                 <div class="appointment-row">
-                  <label>Mã lịch khám</label>
+                  <label>Mã đặt homestay</label>
                   <span id="detail_idLichKham" class="appointment-display"></span>
                 </div>
                 <div class="appointment-row">
-                  <label>Họ tên</label>
+                  <label>Người nhận phòng</label>
                   <span id="detail_hoTen" class="appointment-display"></span>
                 </div>
                 <div class="appointment-row">
-                  <label>Lý do</label>
+                  <label>Yêu cầu đặc biệt</label>
                   <span id="detail_lyDo" class="appointment-display"></span>
                 </div>
                 <div class="appointment-row">
-                  <label>Bác sĩ</label>
+                  <label>Căn / Phòng homestay</label>
                   <span id="detail_tenBacSi" class="appointment-display"></span>
                 </div>
                 <div class="appointment-row">
-                  <label>Khoa</label>
+                  <label>Loại hình homestay</label>
                   <span id="detail_tenKhoa" class="appointment-display"></span>
                 </div>
                 <div class="appointment-row">
-                  <label>Ngày khám</label>
+                  <label>Ngày nhận phòng</label>
                   <span id="detail_ngayKham" class="appointment-display"></span>
                 </div>
                 <div class="appointment-row">
-                  <label>Giờ khám</label>
+                  <label>Giờ nhận phòng</label>
                   <span id="detail_gioKham" class="appointment-display"></span>
                 </div>
               </div>
               <div style="text-align: center; margin-top: 30px;" id="cancelAppointmentArea">
-                <button type="button" id="cancelAppointmentBtn" class="btn primary" style="background-color: #dc3545;">Hủy Lịch Khám</button>
+                <button type="button" id="cancelAppointmentBtn" class="btn primary" style="background-color: #dc3545;">Hủy Đặt Homestay</button>
               </div>
             </div>
           </div>

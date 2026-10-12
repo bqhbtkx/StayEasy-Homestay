@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("dob").textContent = b.ngayThangNamSinh
         ? new Date(b.ngayThangNamSinh).toLocaleDateString('vi-VN')
         : "Chưa có";
-      document.getElementById("recordId").textContent = "HS" + b.idKH;
+      document.getElementById("recordId").textContent = "SE-HOME" + String(b.idKH).padStart(4, '0');
       document.getElementById("cccd").textContent = b.CCCD || b.cccd || "Chưa có";
       document.getElementById("diaChi").textContent = b.diaChi || b.diachi || "Chưa có";
 
@@ -58,25 +58,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!data.lichsu || data.lichsu.length === 0) {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="4" style="text-align:center;">Chưa có lịch sử khám</td>`;
+        tr.innerHTML = `<td colspan="4" style="text-align:center;">Chưa có lịch sử lưu trú</td>`;
         table.appendChild(tr);
       } else {
         data.lichsu.forEach(item => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${item.ngayKham ? new Date(item.ngayKham).toLocaleDateString('vi-VN') : 'Chưa có'}</td>
-            <td>${escapeHtml(item.bacSi || 'Chưa có')}</td>
+            <td><strong>${escapeHtml(item.bacSi || 'Chưa có')}</strong></td>
             <td>${escapeHtml(item.khoa || 'Chưa có')}</td>
             <td>${escapeHtml(item.ketLuan || 'Chưa có')}</td>
           `;
-          tr.onclick = () => showDetail(item.chiTiet || "Chưa có chi tiết");
+          tr.onclick = () => showDetail(item.chiTiet || "Đang cập nhật chi tiết hóa đơn & dịch vụ");
           table.appendChild(tr);
         });
       }
     })
     .catch(err => {
       console.error(err);
-      alert(err.message || "Lỗi khi tải hồ sơ y tế!");
+      alert(err.message || "Lỗi khi tải thông tin hội viên!");
     });
 });
 

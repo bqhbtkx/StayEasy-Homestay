@@ -4,33 +4,33 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Đặt lịch khám - Demo</title>
+    <title>Đặt homestay trực tuyến — StayEasy Homestay</title>
     <link rel="stylesheet" href="order1.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
     <header>
-        <a href="../trangchu/trangchu1.html"><img src="../Picture/logo1.png" alt=""></a>
-        <p class="hotline">HOTLINE: <span style="color: red;">1900 6422</span></p>
+        <a href="../trangchu/trangchu1.html"><img src="../Picture/logo1.png" alt="StayEasy Logo" style="height: 52px; object-fit: contain;"></a>
+        <p class="hotline">HOTLINE HỖ TRỢ 24/7: <span style="color: #d97706; font-weight: bold;">1900 8899</span></p>
     </header>
 
     <div class="booking-box" style="padding: 0;">
-        <div class="inner-title-btn" style="display: flex;justify-content: space-between;align-items: center; background-color: #1e3a8a; margin: 30px 0;" >
-            <h2 style="text-align:center; color: white;font-size: 40px; padding-left: 50px;">Đặt lịch khám</h2>
-            <a href="lichUser.html" class="btnViewLich">Xem lịch của tôi</a>
+        <div class="inner-title-btn" style="display: flex;justify-content: space-between;align-items: center; background: linear-gradient(135deg, #1e3a8a, #1e40af); margin: 30px 0; border-radius: 8px;" >
+            <h2 style="text-align:center; color: white;font-size: 36px; padding-left: 50px;"><i class="fa fa-house-chimney"></i> Đặt homestay StayEasy</h2>
+            <a href="lichUser.html" class="btnViewLich" style="background-color: #f59e0b; color: #1e3a8a; font-weight: bold; border-radius: 6px; padding: 10px 20px; text-decoration: none; margin-right: 50px;">Căn/Phòng tôi đã đặt</a>
         </div>
         <div class="input-group" style="margin: 0 50px;">
             <div class="input-box">
-                <input type="text" id="fullname" placeholder="Họ và tên người bệnh">
+                <input type="text" id="fullname" placeholder="Họ và tên khách nhận phòng">
             </div>
             <div class="input-box">
-                <input type="text" id="reason" placeholder="Lý do đến khám / Triệu chứng">
+                <input type="text" id="reason" placeholder="Yêu cầu đặc biệt (Số khách, tiệc nướng BBQ, bếp tự nấu, giờ check-in...)">
             </div>
             <div class="input-box">
-                <input type="text" id="khoaInput" placeholder="Tất cả chuyên khoa" readonly aria-haspopup="listbox"
+                <input type="text" id="khoaInput" placeholder="Tất cả loại hình homestay (Bungalow, Nhà gỗ, Áp mái, Villa...)" readonly aria-haspopup="listbox"
                     aria-expanded="false">
-                <div class="dropdown" id="dropdownKhoa" role="listbox" aria-label="Danh sách khoa">
+                <div class="dropdown" id="dropdownKhoa" role="listbox" aria-label="Danh sách loại hình homestay">
                     <!-- items injected by JS -->
                 </div>
             </div>
@@ -38,42 +38,42 @@
     </div>
 
     <main class="content">
-        <div class="date-range">Ngày 11 Tháng 10 Năm 2025 – Ngày 10 Tháng 11 Năm 2025</div>
+        <div class="date-range" style="font-weight: bold; color: #1e3a8a; margin-bottom: 20px;"><i class="fa fa-calendar-alt"></i> Chọn ngày nhận phòng & khung giờ check-in homestay thuận tiện nhất</div>
         <div id="doctorsList">
-            <!-- Doctor cards will be inserted here by JS -->
+            <!-- Room cards will be inserted here by JS -->
         </div>
     </main>
 
     <footer>
-        <div class="logo"><img src="../Picture/logo2.png" alt=""></div>
+        <div class="logo"><img src="../Picture/logo2.png" alt="StayEasy Logo" style="height: 48px; object-fit: contain;"></div>
         <div class="location">
-            <p style="font-weight: bold;font-size: 18px;">BỆNH VIỆN ĐA KHOA QUỐC TẾ ICARE</p>
+            <p style="font-weight: bold; font-size: 18px; color: #f59e0b;">HỆ THỐNG HOMESTAY NGHỈ DƯỠNG STAYEASY</p>
             <div class="location-content"><i class="fa fa-map-marker" aria-hidden="true"></i>
-                <p>Cơ sở Tôn Thất Tùng: <span>Số 1 Tôn Thất Tùng, Phường Trung Tự, Quận Đống Đa, Hà Nội</span></p>
+                <p>StayEasy Đà Lạt: <span>Hẻm 31 Hoàng Hoa Thám, Phường 10, TP. Đà Lạt</span></p>
             </div>
             <div class="location-content"><i class="fa fa-map-marker" aria-hidden="true"></i>
-                <p>Cơ sở Cầu Giấy: <span>Số 10 Trương Công Giai, Cầu Giấy, Hà Nội</span></p>
+                <p>StayEasy Sapa: <span>Thôn Tả Van Giáy, Xã Tả Van, Thị xã Sa Pa</span></p>
             </div>
             <div class="location-content"><i class="fa fa-map-marker" aria-hidden="true"></i>
-                <p>Cơ sở Hoàng Mai: <span>Số 587, Tam Trinh, Yên Sở, Hoàng Mai, Hà Nội</span></p>
+                <p>StayEasy Ba Vì: <span>Xã Vân Hòa, Huyện Ba Vì, Hà Nội</span></p>
             </div>
             <div class="location-content"><i class="fa-solid fa-envelope" aria-hidden="true"></i>
-                <p>Email: <span>icare@hospital.vn</span></p>
+                <p>Email: <span>booking@stayeasy.vn</span></p>
             </div>
             <div class="location-content"><i class="fa-solid fa-phone" aria-hidden="true"></i>
-                <p>Tổng đài: <span>1900 6422</span></p>
+                <p>Tổng đài đặt phòng: <span>1900 8899 / (024) 3822 6688</span></p>
             </div>
         </div>
     </footer>
 
     <div id="confirmPopup" class="confirm-popup" aria-hidden="true" role="dialog" aria-modal="true">
         <div class="popup-content" role="document">
-            <h3>Xác nhận đặt lịch khám</h3>
-            <div id="confirmSummary" style="margin-bottom:12px; color:#333; text-align:left; font-size:14px;"></div>
-            <p>Bạn có chắc chắn muốn đặt lịch khám với thông tin trên không?</p>
+            <h3>Xác nhận đặt homestay StayEasy</h3>
+            <div id="confirmSummary" style="margin-bottom:12px; color:#333; text-align:left; font-size:14px; line-height: 1.8;"></div>
+            <p>Bạn có chắc chắn muốn xác nhận đặt homestay với thông tin trên không?</p>
             <div class="popup-buttons">
-                <button id="confirmYes" class="btn-confirm">Xác nhận</button>
-                <button id="confirmNo" class="btn-cancel">Hủy</button>
+                <button id="confirmYes" class="btn-confirm" style="background-color: #1e3a8a;">Xác nhận đặt homestay</button>
+                <button id="confirmNo" class="btn-cancel">Quay lại</button>
             </div>
         </div>
     </div>

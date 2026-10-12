@@ -111,12 +111,14 @@ async function loadRecentActivities() {
         // Render danh sách hoạt động
         container.innerHTML = data.map(item => {
             const iconMap = {
-                "THÊM BÁC SĨ": "👨‍⚕️",
-                "XÓA BÁC SĨ": "🗑️",
-                "THÊM LỊCH KHÁM": "📅",
-                "CẬP NHẬT LỊCH": "✏️",
-                "THÊM KHOA": "🏥",
-                "XÓA KHOA": "🗑️",
+                "ĐẶT HOMESTAY": "🏡",
+                "ĐẶT PHÒNG": "🏡",
+                "XÁC NHẬN": "✅",
+                "HỦY PHÒNG": "❌",
+                "HỦY ĐẶT": "❌",
+                "THÊM CĂN": "🏡",
+                "THÊM PHÒNG": "🏡",
+                "THÊM LOẠI HÌNH": "🪵",
                 "THÊM HỒ SƠ": "📋",
                 "XÓA HỒ SƠ": "🗑️"
             };
@@ -161,8 +163,7 @@ function escapeHtml(text) {
 // 3. LOGIC BIỂU ĐỒ (CHART.JS)
 // ==============================
 async function loadDailyAppointmentsChart() {
-    // Yêu cầu: Đảm bảo đã nhúng Chart.js CDN vào admin.html
-    console.log("📈 Đang tải dữ liệu biểu đồ...");
+    console.log("📈 Đang tải dữ liệu biểu đồ đặt phòng...");
     
     try {
         const res = await fetch("http://localhost:3000/api/dashboard/daily-appointments");
@@ -177,13 +178,11 @@ async function loadDailyAppointmentsChart() {
         const data = await res.json();
         
         const labels = data.map(item => {
-            // Format date to DD/MM for display
             const [year, month, day] = item.date.split('-');
             return `${day}/${month}`;
         });
         const counts = data.map(item => item.count);
         
-        // Render Chart
         renderChart(labels, counts);
 
     } catch (error) {
@@ -196,7 +195,7 @@ async function loadDailyAppointmentsChart() {
         }
         const chartContainer = document.getElementById("chartPlaceholder");
         if (chartContainer) {
-            chartContainer.innerHTML = '<div class="text-red-500 text-center py-4">Không thể tải biểu đồ lịch khám. (Kiểm tra Chart.js đã được nhúng chưa)</div>';
+            chartContainer.innerHTML = '<div class="text-red-500 text-center py-4">Không thể tải biểu đồ đặt phòng.</div>';
         }
     }
 }
@@ -205,21 +204,21 @@ function renderChart(labels, data) {
     const chartArea = document.getElementById('chartCanvas');
     if (!chartArea) return; 
 
-    // Dùng biến toàn cục để lưu instance, tránh vẽ lại
     if (window.appointmentChart instanceof Chart) {
         window.appointmentChart.destroy();
     }
     
     window.appointmentChart = new Chart(chartArea, {
-        type: 'bar', // Biểu đồ cột
+        type: 'bar',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Số Lịch Khám',
+                label: 'Số Lượt Đặt Homestay',
                 data: data,
-                backgroundColor: 'rgba(56, 189, 248, 0.7)', // Màu xanh nhạt (Tailwind sky-400)
-                borderColor: 'rgba(56, 189, 248, 1)',
-                borderWidth: 1
+                backgroundColor: 'rgba(245, 158, 11, 0.75)',
+                borderColor: 'rgba(217, 119, 6, 1)',
+                borderWidth: 1,
+                borderRadius: 4
             }]
         },
         options: {
@@ -230,11 +229,11 @@ function renderChart(labels, data) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Số Lượt'
+                        text: 'Số Lượt Đặt'
                     },
                     ticks: {
                         stepSize: 1,
-                        precision: 0 // Đảm bảo hiển thị số nguyên
+                        precision: 0
                     }
                 },
                 x: {
@@ -250,7 +249,7 @@ function renderChart(labels, data) {
                 },
                 title: {
                     display: true,
-                    text: 'Lịch Khám 30 Ngày Gần Nhất'
+                    text: 'Lượt Đặt Homestay 30 Ngày Gần Nhất'
                 }
             }
         }

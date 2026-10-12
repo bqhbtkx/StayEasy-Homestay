@@ -66,30 +66,30 @@ document.addEventListener("DOMContentLoaded", () => {
       tableBody.innerHTML = "";
 
       if (!Array.isArray(data) || data.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="3" class="p-2 text-gray-500">Không có hồ sơ y tế nào</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="3" class="p-3 text-gray-500 text-center">Không có hồ sơ khách lưu trú nào</td></tr>';
         return;
       }
 
       data.forEach((hs) => {
         const tr = document.createElement("tr");
-        tr.classList.add("border-t");
+        tr.classList.add("border-t", "hover:bg-slate-50", "transition");
         tr.innerHTML = `
-          <td class="p-2">${hs.idHoSoYTe ?? ""}</td>
-          <td class="p-2">${hs.idKH ?? ""}</td>
-          <td class="p-2 text-center">
-            <button class="viewBtn text-blue-600" data-id="${hs.idHoSoYTe ?? ""}">👁️</button>
-            <button class="delBtn text-red-600" data-id="${hs.idHoSoYTe ?? ""}">🗑️</button>
+          <td class="p-3 font-semibold text-slate-700">SE-HOME${String(hs.idHoSoYTe ?? "").padStart(4, '0')}</td>
+          <td class="p-3 text-blue-700 font-medium">${hs.idKH ?? ""}</td>
+          <td class="p-3 text-center">
+            <button class="viewBtn text-blue-600 hover:text-blue-800 mr-2" data-id="${hs.idHoSoYTe ?? ""}">👁️ Xem</button>
+            <button class="delBtn text-red-600 hover:text-red-800" data-id="${hs.idHoSoYTe ?? ""}">🗑️ Xóa</button>
           </td>
         `;
         tableBody.appendChild(tr);
       });
     } catch (err) {
-      console.error("❌ Lỗi tải hồ sơ y tế:", err);
+      console.error("❌ Lỗi tải hồ sơ khách lưu trú:", err);
       if (String(err.message).includes("UNAUTHORIZED")) {
         window.location.href = adminLoginUrl();
         return;
       }
-      tableBody.innerHTML = '<tr><td colspan="3" class="p-2 text-red-600">Không thể tải dữ liệu. Vui lòng kiểm tra kết nối hoặc đăng nhập admin.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="3" class="p-3 text-red-600 text-center">Không thể tải dữ liệu. Vui lòng kiểm tra quyền admin.</td></tr>';
     }
   }
 
@@ -103,10 +103,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch(`${apiUrl}/${id}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const hs = await res.json();
-        alert(`📋 Hồ sơ #${hs.idHoSoYTe}\n👤 Họ tên: ${hs.hoTen || "Chưa có"}\n🆔 Khách hàng: ${hs.idKH}`);
+        alert(`📋 Thẻ Thành Viên StayEasy Homestay #${hs.idHoSoYTe}\n👤 Họ tên: ${hs.hoTen || "Chưa có"}\n🆔 Mã khách: ${hs.idKH}`);
       } catch (err) {
         console.error("❌ Lỗi xem hồ sơ:", err);
-        alert("Không thể tải chi tiết hồ sơ. Vui lòng kiểm tra kết nối hoặc quyền admin.");
+        alert("Không thể tải chi tiết hồ sơ. Vui lòng kiểm tra quyền admin.");
       }
       return;
     }
@@ -129,11 +129,11 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("❎ Đã hủy xóa.");
           }
         } else {
-          alert(check.message || "🗑️ Đã xóa hồ sơ y tế!");
+          alert(check.message || "🗑️ Đã xóa hồ sơ khách lưu trú!");
         }
       } catch (err) {
         console.error("❌ Lỗi xóa hồ sơ:", err);
-        alert("Không thể xóa hồ sơ. Vui lòng kiểm tra kết nối hoặc quyền admin.");
+        alert("Không thể xóa hồ sơ. Vui lòng kiểm tra quyền admin.");
       }
 
       loadData();

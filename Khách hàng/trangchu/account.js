@@ -573,10 +573,10 @@ function renderMedicalTable(lichsu) {
     if (!tbody || !detailContainer) return;
 
     tbody.innerHTML = "";
-    detailContainer.innerHTML = `<p class="detail-placeholder">Chi tiết kết quả khám</p>`;
+    detailContainer.innerHTML = `<p class="detail-placeholder">Bấm vào một kỳ nghỉ để xem chi tiết dịch vụ & hóa đơn</p>`;
 
     if (!lichsu || lichsu.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Chưa có lịch sử khám bệnh</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Chưa có lịch sử lưu trú</td></tr>`;
         return;
     }
 
@@ -587,12 +587,12 @@ function renderMedicalTable(lichsu) {
         const ngayKhamFormatted = new Date(item.ngayKham).toLocaleDateString('vi-VN');
 
         tr.dataset.chiTiet = `
-            <h3>Kết Quả Khám: ${escapeHtml(ngayKhamFormatted)}</h3>
-            <p><strong>Bác sĩ:</strong> ${escapeHtml(item.bacSi)}</p>
-            <p><strong>Khoa:</strong> ${escapeHtml(item.khoa)}</p>
-            <p><strong>Kết luận:</strong> ${escapeHtml(item.ketLuan)}</p>
+            <h3>Kỳ Nghỉ Ngày: ${escapeHtml(ngayKhamFormatted)}</h3>
+            <p><strong>Căn / Phòng homestay:</strong> ${escapeHtml(item.bacSi)}</p>
+            <p><strong>Loại hình homestay:</strong> ${escapeHtml(item.khoa)}</p>
+            <p><strong>Đánh giá / Trạng thái:</strong> ${escapeHtml(item.ketLuan)}</p>
             <hr>
-            <p>${escapeHtml(item.chiTiet || "Thông tin chi tiết đang cập nhật...")}</p>
+            <p><strong>Chi tiết dịch vụ:</strong> ${escapeHtml(item.chiTiet || "Đang cập nhật chi tiết hóa đơn...")}</p>
         `;
 
         tr.innerHTML = `
@@ -904,10 +904,10 @@ if (appointmentsListView && appointmentDetailView) {
         appointmentsListContainer.style.display = "block";
     });
     
-    // HỦY LỊCH KHÁM
+    // HỦY ĐẶT HOMESTAY
     cancelAppointmentBtn.addEventListener("click", async function() {
         const idLichKham = this.dataset.id;
-        if (!confirm(`Bạn có chắc chắn muốn hủy lịch khám #${idLichKham} này không?`)) {
+        if (!confirm(`Bạn có chắc chắn muốn hủy đơn đặt homestay #${idLichKham} này không?`)) {
             return;
         }
 
@@ -921,11 +921,11 @@ if (appointmentsListView && appointmentDetailView) {
             const result = await res.json();
             
             if (!res.ok || !result.success) {
-                showToast("❌ " + (result.message || "Hủy lịch thất bại!"));
+                showToast("❌ " + (result.message || "Hủy đặt homestay thất bại!"));
                 return;
             }
 
-            showToast("✅ Hủy lịch thành công!");
+            showToast("✅ Hủy đặt homestay thành công!");
             
             // 1. Load lại danh sách (để cập nhật trạng thái)
             const activeStatus = document.querySelector('.filter-btn.active').dataset.status;
@@ -934,10 +934,9 @@ if (appointmentsListView && appointmentDetailView) {
             // 2. Chuyển về màn hình danh sách (nếu loadAppointments không tự làm)
             backToAppointmentsBtn.click();
 
-
         } catch (err) {
-            console.error("Lỗi hủy lịch:", err);
-            showToast("❌ Lỗi kết nối server khi hủy lịch.");
+            console.error("Lỗi hủy đặt homestay:", err);
+            showToast("❌ Lỗi kết nối server khi hủy đặt homestay.");
         }
     });
 

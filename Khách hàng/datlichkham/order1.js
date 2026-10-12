@@ -20,7 +20,7 @@
     const userId = localStorage.getItem("userId");
     const loggedIn = localStorage.getItem("loggedIn") === "true";
     if (!token || !userId || !loggedIn) {
-        alert("Vui lòng đăng nhập trước khi đặt lịch khám!");
+        alert("Vui lòng đăng nhập trước khi đặt homestay!");
         const onApiHost = /:(3000)$/.test(location.host) || location.pathname.startsWith("/customer");
         window.location.href = onApiHost
             ? "/customer/trangchupre/trangchu1.html"
@@ -65,7 +65,7 @@ function getNext7Days() {
     return dates;
 }
 
-// Load khoa + "Tất cả chuyên khoa"
+// Load loại hình homestay + "Tất cả loại hình"
 async function loadKhoa() {
     try {
         const res = await fetch("http://localhost:3000/api/khoa");
@@ -75,10 +75,10 @@ async function loadKhoa() {
         const allOption = document.createElement("div");
         allOption.className = "dropdown-item";
         allOption.tabIndex = 0;
-        allOption.textContent = "Tất cả chuyên khoa";
+        allOption.textContent = "Tất cả loại hình homestay";
         allOption.dataset.id = "";
         allOption.addEventListener("click", ()=> {
-            khoaInput.value = "Tất cả chuyên khoa";
+            khoaInput.value = "Tất cả loại hình homestay";
             khoaInput.dataset.id = "";
             dropdown.style.display = "none";
             loadBacSi();
@@ -111,23 +111,23 @@ document.addEventListener('click', e => {
     if(!e.target.closest('.input-box')) dropdown.style.display='none'; 
 });
 
-// Load bác sĩ (idKhoa=null => tất cả)
+// Load căn/phòng (idKhoa=null => tất cả)
 async function loadBacSi(idKhoa = null) {
     try {
         const url = idKhoa ? `http://localhost:3000/api/bacsi/${idKhoa}` : "http://localhost:3000/api/bacsi-all";
         const res = await fetch(url);
         const data = await res.json();
         renderDoctors(data, idKhoa);
-    } catch(err){
+    } catch(err){ 
         console.error(err); 
-        doctorsList.innerHTML="<p>Không tải được danh sách bác sĩ</p>"; 
+        doctorsList.innerHTML="<p>Không tải được danh sách căn homestay</p>"; 
     }
 }
 
-// Render bác sĩ
+// Render căn/phòng
 function renderDoctors(bacSiArray, idKhoa) {
     if(!Array.isArray(bacSiArray) || bacSiArray.length===0) {
-        doctorsList.innerHTML = "<p>Chưa có bác sĩ</p>";
+        doctorsList.innerHTML = "<p>Chưa có căn homestay phù hợp</p>";
         return;
     }
     doctorsList.innerHTML = bacSiArray.map(bs => createDoctorCardHTML(bs, idKhoa)).join('');
@@ -142,15 +142,15 @@ function createDoctorCardHTML(bs, idKhoa) {
         </div>`
     ).join('');
 
-    const times = ['07:45','08:00','08:15','08:30','08:45','09:00','09:15','09:30','09:45','10:00'];
+    const times = ['12:00','13:00','14:00','14:30','15:00','16:00','17:00','18:00','19:00','20:00'];
     const timeBtnsHTML = times.map(t=>`<button class="time-btn">${t}</button>`).join('');
 
     return `<article class="doctor-card" data-id="${bs.idBacSi}" data-name="${escapeHtml(bs.hoTenBacSi)}" data-khoaid="${idKhoa || bs.idKhoa || ''}">
         <div class="doctor-header">
-            <div class="avatar"><img src="../Picture/doctor.png" alt="avatar"></div>
+            <div class="avatar"><img src="../Picture/doctor.png" alt="Homestay"></div>
             <div class="meta">
-                <div class="name">${escapeHtml(bs.hoTenBacSi)}</div>
-                <div class="spec">🩺 ${escapeHtml(bs.hocVi || '')}</div>
+                <div class="name" style="color: #1e3a8a; font-size: 18px;">${escapeHtml(bs.hoTenBacSi)}</div>
+                <div class="spec" style="color: #d97706; font-weight: 500;">🏡 ${escapeHtml(bs.hocVi || '')}</div>
             </div>
             <button class="arrow-btn">&#9660;</button>
         </div>
@@ -158,9 +158,9 @@ function createDoctorCardHTML(bs, idKhoa) {
             <div class="details-inner">
                 <div class="days">${days}</div>
                 <div class="clinic">
-                    <div class="clinic-icon">🏥</div>
+                    <div class="clinic-icon">🛎️</div>
                     <div class="clinic-info">
-                        <div class="title">Phòng khám - ${escapeHtml(bs.hoTenBacSi)}</div>
+                        <div class="title" style="font-weight: bold; color: #1e3a8a;">Chọn giờ nhận phòng (Check-in) - ${escapeHtml(bs.hoTenBacSi)}</div>
                         <div class="times">${timeBtnsHTML}</div>
                     </div>
                 </div>
@@ -219,17 +219,16 @@ function attachInteractivity() {
             const bacSiId = card.dataset.id;
 
             confirmSummary.innerHTML = `
-                <strong>Người bệnh:</strong> ${escapeHtml(name)}<br>
-                <strong>Khoa:</strong> ${escapeHtml(khoaVal)}<br>
-                <strong>Bác sĩ:</strong> ${escapeHtml(bacSiName)}<br>
-                <strong>Ngày:</strong> ${escapeHtml(dayDate)}<br>
-                <strong>Giờ:</strong> ${escapeHtml(btn.textContent)}<br>
-                <strong>Lý do:</strong> ${escapeHtml(reason)}
+                <strong>Khách nhận phòng:</strong> ${escapeHtml(name)}<br>
+                <strong>Loại hình homestay:</strong> ${escapeHtml(khoaVal)}<br>
+                <strong>Căn đã chọn:</strong> ${escapeHtml(bacSiName)}<br>
+                <strong>Ngày nhận phòng:</strong> ${escapeHtml(dayDate)}<br>
+                <strong>Giờ nhận phòng:</strong> ${escapeHtml(btn.textContent)}<br>
+                <strong>Yêu cầu đặc biệt:</strong> ${escapeHtml(reason)}
             `;
             popup.dataset.selHoTen = name;
             popup.dataset.selLyDo = reason;
             popup.dataset.selIdBacSi = bacSiId;
-            // Ưu tiên id khoa của bác sĩ (fix khi đang chọn "Tất cả chuyên khoa")
             popup.dataset.selIdKhoa = card.dataset.khoaid || khoaInput.dataset.id || "";
             popup.dataset.selTenKhoa = khoaVal;
             popup.dataset.selNgay = dayDate;
@@ -266,7 +265,7 @@ confirmNo.onclick = ()=> popup.style.display='none';
 confirmYes.onclick = async ()=>{
     const idKhoa = popup.dataset.selIdKhoa;
     if (!popup.dataset.selIdBacSi || !idKhoa) {
-        alert("Thiếu thông tin bác sĩ/khoa. Vui lòng chọn lại.");
+        alert("Thiếu thông tin căn/loại hình homestay. Vui lòng chọn lại.");
         return;
     }
     const body = {
@@ -284,7 +283,7 @@ confirmYes.onclick = async ()=>{
             body:JSON.stringify(body)
         });
         const data = await res.json();
-        alert(data.message || (res.ok ? "Đặt lịch thành công!" : "Đặt lịch thất bại!"));
+        alert(data.message || (res.ok ? "Đặt homestay thành công! StayEasy hân hạnh đón tiếp bạn." : "Đặt homestay thất bại!"));
         popup.style.display = "none";
         if (!res.ok) return;
         const card = document.querySelector(`.doctor-card[data-id="${body.idBacSi}"]`);
@@ -293,9 +292,9 @@ confirmYes.onclick = async ()=>{
         if(dayCard) updateTimeAvailability(dayCard);
     } catch(err){ 
         console.error(err); 
-        alert("Đặt lịch thất bại!"); 
+        alert("Đặt homestay thất bại! Vui lòng thử lại sau."); 
     }
 }
 
-// Load all bác sĩ ban đầu
+// Load all căn/phòng ban đầu
 loadBacSi();
