@@ -52,7 +52,7 @@ async function loadLichCuaToi() {
     }
 
     try {
-        const res = await fetch(`http://localhost:3000/api/lich-user/${userId}`);
+        const res = await fetch(`http://localhost:3000/api/don-dat-user/${userId}`);
         const data = await res.json();
 
         if (!Array.isArray(data) || data.length === 0) {
@@ -64,12 +64,12 @@ async function loadLichCuaToi() {
             const status = String(l.trangThai || "").toLowerCase();
             return `
             <tr>
-                <td><strong>${escapeHtml(l.tenBacSi)}</strong></td>
-                <td>${escapeHtml(l.tenKhoa)}</td>
+                <td><strong>${escapeHtml(l.tenBacSi || l.tenCanPhong)}</strong></td>
+                <td>${escapeHtml(l.tenKhoa || l.tenLoaiPhong)}</td>
                 <td>${escapeHtml(formatNgay(l.ngayKham))}</td>
                 <td>${escapeHtml(String(l.gioKham || "").slice(0, 5))}</td>
                 <td><span class="badge ${status === 'đã xác nhận' ? 'badge-success' : ''}">${escapeHtml(l.trangThai)}</span></td>
-                <td>${status === 'chờ xác nhận' ? `<button class="huy" onclick="huyLich(${Number(l.idLichKham)})">Hủy đặt</button>` : ''}</td>
+                <td>${status === 'chờ xác nhận' ? `<button class="huy" onclick="huyDatPhong(${Number(l.idLichKham || l.idDatPhong)})">Hủy đặt</button>` : ''}</td>
             </tr>
         `;
         }).join("");
@@ -80,14 +80,14 @@ async function loadLichCuaToi() {
     }
 }
 
-async function huyLich(idLichKham) {
+async function huyDatPhong(idDatPhong) {
     if (!confirm("Bạn có chắc chắn muốn hủy đơn đặt homestay này không?")) return;
 
     try {
-        const res = await fetch("http://localhost:3000/api/huy-lich", {
+        const res = await fetch("http://localhost:3000/api/huy-dat-phong", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idLichKham })
+            body: JSON.stringify({ idDatPhong, idLichKham: idDatPhong })
         });
         const data = await res.json();
         alert(data.message);
@@ -97,5 +97,6 @@ async function huyLich(idLichKham) {
         alert("Hủy đặt homestay thất bại!");
     }
 }
+window.huyLich = huyDatPhong;
 
 loadLichCuaToi();

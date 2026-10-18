@@ -68,7 +68,7 @@ function getNext7Days() {
 // Load loại hình homestay + "Tất cả loại hình"
 async function loadKhoa() {
     try {
-        const res = await fetch("http://localhost:3000/api/khoa");
+        const res = await fetch("http://localhost:3000/api/loai-phong");
         const data = await res.json();
         dropdown.innerHTML = "";
 
@@ -114,7 +114,7 @@ document.addEventListener('click', e => {
 // Load căn/phòng (idKhoa=null => tất cả)
 async function loadBacSi(idKhoa = null) {
     try {
-        const url = idKhoa ? `http://localhost:3000/api/bacsi/${idKhoa}` : "http://localhost:3000/api/bacsi-all";
+        const url = idKhoa ? `http://localhost:3000/api/can-phong/${idKhoa}` : "http://localhost:3000/api/can-phong-all";
         const res = await fetch(url);
         const data = await res.json();
         renderDoctors(data, idKhoa);
@@ -147,7 +147,7 @@ function createDoctorCardHTML(bs, idKhoa) {
 
     return `<article class="doctor-card" data-id="${bs.idBacSi}" data-name="${escapeHtml(bs.hoTenBacSi)}" data-khoaid="${idKhoa || bs.idKhoa || ''}">
         <div class="doctor-header">
-            <div class="avatar"><img src="../Picture/doctor.png" alt="Homestay"></div>
+            <div class="avatar"><img src="../Picture/homestay.png" alt="Homestay"></div>
             <div class="meta">
                 <div class="name" style="color: #1e3a8a; font-size: 18px;">${escapeHtml(bs.hoTenBacSi)}</div>
                 <div class="spec" style="color: #d97706; font-weight: 500;">🏡 ${escapeHtml(bs.hocVi || '')}</div>
@@ -245,7 +245,7 @@ async function updateTimeAvailability(dayCard) {
     const date = dayCard.dataset.date;
     const times = card.querySelectorAll('.time-btn');
     try {
-        const res = await fetch(`http://localhost:3000/api/lich-da-dat?bacsi=${bacSiId}&ngay=${date}`);
+        const res = await fetch(`http://localhost:3000/api/phong-da-dat?canphong=${bacSiId}&ngay=${date}`);
         const bookedTimes = await res.json(); 
         times.forEach(t=>{
             if(bookedTimes.includes(t.textContent)){ 
@@ -277,7 +277,7 @@ confirmYes.onclick = async ()=>{
         gioKham: popup.dataset.selGio
     };
     try{
-        const res = await fetch("http://localhost:3000/api/dat-lich",{
+        const res = await fetch("http://localhost:3000/api/dat-phong",{
             method:"POST",
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify(body)

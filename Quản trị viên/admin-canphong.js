@@ -1,4 +1,4 @@
-// admin-doctors.js
+// admin-canphong.js
 // Quản lý Danh sách Căn / Phòng Homestay StayEasy
 // Tự động gửi token xác thực cho các API quản trị.
 (function() {
@@ -16,8 +16,8 @@
   };
 })();
 
-const API_BASE_ADMIN = "http://localhost:3000/api/admin/bacsi";
-const API_KHOA = "http://localhost:3000/api/khoa";
+const API_BASE_ADMIN = "http://localhost:3000/api/admin/canphong";
+const API_LOAIPHONG = "http://localhost:3000/api/loai-phong";
 
 (async function initDoctorsModule(){
   const doctorsSection = document.querySelector('section[data-page="doctors"]');
@@ -70,7 +70,7 @@ const API_KHOA = "http://localhost:3000/api/khoa";
 
   async function loadKhoa() {
     try {
-      const r = await fetch(API_KHOA);
+      const r = await fetch(API_LOAIPHONG);
       khoaList = await r.json();
     } catch (err) {
       console.error("Lỗi load loại hình homestay:", err);

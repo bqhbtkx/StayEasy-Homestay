@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const tableBody = document.querySelector("#hosoyteTable tbody");
   if (!tableBody) return;
 
-  const apiUrl = "http://localhost:3000/api/admin/hosoyte";
+  const apiUrl = "http://localhost:3000/api/admin/hosoluutru";
   const modal = document.getElementById("hosoyteModal");
   const closeBtn = document.getElementById("closeHosoyteModal");
   const cancelBtn = document.getElementById("cancelHosoyte");

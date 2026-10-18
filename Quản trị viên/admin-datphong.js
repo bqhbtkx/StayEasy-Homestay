@@ -1,4 +1,4 @@
-// admin-lichkham.js
+// admin-datphong.js
 // Quản lý Đặt Homestay (Bookings) StayEasy
 // Tự động gửi token xác thực cho các API quản trị.
 (function() {
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const tableBody = document.querySelector("#lichTable tbody");
   if (!tableBody) return;
 
-  const apiUrl = "http://localhost:3000/api/admin/lichkham";
+  const apiUrl = "http://localhost:3000/api/admin/datphong";
 
   const modal = document.getElementById("lichModal");
   const openBtn = document.getElementById("openAddLich");
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 📘 Load danh sách loại hình homestay + căn
   async function loadOptions() {
     try {
-      const khoaRes = await fetch("http://localhost:3000/api/khoa");
+      const khoaRes = await fetch("http://localhost:3000/api/loai-phong");
       if (!khoaRes.ok) throw new Error(`HTTP ${khoaRes.status}`);
       const khoaData = await khoaRes.json();
       idKhoa.innerHTML = '<option value="">-- Chọn loại hình homestay --</option>';
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = idKhoa.value;
         if (!id) return;
         try {
-          const res = await fetch(`http://localhost:3000/api/bacsi/${id}`);
+          const res = await fetch(`http://localhost:3000/api/can-phong/${id}`);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json();
           idBacSi.innerHTML = '<option value="">-- Chọn căn / phòng homestay --</option>';
@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return alert("❌ ID khách hàng không tồn tại trong hệ thống!");
       }
 
-      const res = await fetch("http://localhost:3000/api/admin/lichkham", {
+      const res = await fetch("http://localhost:3000/api/admin/datphong", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

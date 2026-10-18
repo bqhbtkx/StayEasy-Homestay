@@ -1,4 +1,4 @@
-// admin-khoa.js
+// admin-loaiphong.js
 // Quản lý Loại hình Homestay StayEasy
 // Tự động gửi token xác thực cho các API quản trị.
 (function() {
@@ -17,7 +17,7 @@
 })();
 
 document.addEventListener("DOMContentLoaded", () => {
-  const API = "http://localhost:3000/api/khoa";
+  const API = "http://localhost:3000/api/loai-phong";
   const tableBody = document.querySelector("#deptTable tbody");
   if (!tableBody) return;
 

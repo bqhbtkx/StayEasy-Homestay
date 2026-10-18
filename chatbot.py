@@ -10,7 +10,7 @@ import time
 # CONFIG
 # ------------------------------
 MODEL = "gemini-2.5-flash"
-DATA_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "yte")
+DATA_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "camnang")
 MAX_TOKENS = 600
 RETRY_DELAY = 5
 MAX_RETRIES = 3

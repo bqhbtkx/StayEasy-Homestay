@@ -31,7 +31,7 @@
 const navItems = document.querySelectorAll('.side-nav .nav-item');
 const contentSections = document.querySelectorAll('.content-section');
 
-// Khai báo biến toàn cục để lưu trữ lịch sử khám bệnh
+// Khai báo biến toàn cục để lưu trữ lịch sử lưu trú
 let medicalHistoryData = [];
 const medicalHistoryTableBody = document.querySelector('.medical-history-table tbody');
 const medicalDetailPlaceholder = document.querySelector('.medical-record-detail .detail-placeholder');
@@ -49,7 +49,7 @@ navItems.forEach(item => {
         const target = document.getElementById(targetId + "-section");
         if (target) target.classList.add('active');
 
-        // GỌI HÀM TẢI DỮ LIỆU KHI CHUYỂN SANG TAB LỊCH SỬ KHÁM BỆNH
+        // GỌI HÀM TẢI DỮ LIỆU KHI CHUYỂN SANG TAB LỊCH SỬ LƯU TRÚ
         if (targetId === 'medical-history') {
             loadMedicalHistory();
         }
@@ -526,7 +526,7 @@ async function loadMedicalHistory() {
             medicalHistoryTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Đang tải dữ liệu...</td></tr>';
         }
 
-        const res = await fetch(`http://localhost:3000/hosoyte/${currentUserId}`);
+        const res = await fetch(`http://localhost:3000/api/hosoluutru/${currentUserId}`);
         const data = await res.json();
 
         // 1. Lưu trữ dữ liệu vào biến toàn cục
@@ -542,7 +542,7 @@ async function loadMedicalHistory() {
         if (medicalHistoryTableBody) {
             medicalHistoryTableBody.innerHTML = '<tr><td colspan="4" style="color: red; text-align: center;">Lỗi tải dữ liệu.</td></tr>';
         }
-        showToast("❌ Lỗi tải dữ liệu lịch sử khám bệnh");
+        showToast("❌ Lỗi tải dữ liệu lịch sử lưu trú");
     }
 }
 

@@ -22,7 +22,7 @@ if env_path.exists():
 if not os.getenv("GEMINI_API_KEY"):
     print("⚠️ GEMINI_API_KEY chưa được cấu hình. Chatbot sẽ không hoạt động cho đến khi bạn thêm key vào .env")
 
-from chatbot import MedicalChatbot
+from chatbot import StayEasyChatbot
 
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -31,11 +31,11 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
 ]
 
-app = FastAPI(title="ICare Chatbot")
+app = FastAPI(title="StayEasy Homestay Concierge Bot")
 chatbot = None
 
 try:
-    chatbot = MedicalChatbot()
+    chatbot = StayEasyChatbot()
 except Exception as exc:
     print(f"⚠️ Không khởi tạo được chatbot: {exc}")
 

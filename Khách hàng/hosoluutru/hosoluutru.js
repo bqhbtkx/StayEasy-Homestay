@@ -27,20 +27,19 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Lấy thông tin hồ sơ y tế từ server
-  fetch(`http://localhost:3000/hosoyte/${idKH}`)
+  // Lấy thông tin hồ sơ lưu trú từ server
+  fetch(`http://localhost:3000/api/hosoluutru/${idKH}`)
     .then(async (res) => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Lỗi tải hồ sơ");
       return data;
     })
     .then(data => {
-      if (!data.benhnhan) {
-        alert("Không tìm thấy hồ sơ!");
+      const b = data.khachhang || data.benhnhan;
+      if (!b) {
+        alert("Không tìm thấy hồ sơ lưu trú!");
         return;
       }
-
-      const b = data.benhnhan;
 
       // Hiển thị thông tin khách hàng
       document.getElementById("name").textContent = b.hoTen || "Chưa có";
@@ -52,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("cccd").textContent = b.CCCD || b.cccd || "Chưa có";
       document.getElementById("diaChi").textContent = b.diaChi || b.diachi || "Chưa có";
 
-      // Hiển thị lịch sử khám từ LICHSUKHAMBENH
+      // Hiển thị lịch sử lưu trú từ LICHSULUUTRU
       const table = document.getElementById("recordTable");
       table.innerHTML = "";
 

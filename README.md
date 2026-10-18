@@ -60,9 +60,9 @@ Frontend được phục vụ trực tiếp qua Express:
 |---|---|
 | Trang chủ Homestay (Chưa đăng nhập) | `http://localhost:3000/customer/trangchupre/trangchu1.html` (hoặc `/`) |
 | Cổng thành viên StayEasy (Đã đăng nhập) | `http://localhost:3000/customer/trangchu/trangchu1.html` |
-| Đặt homestay trực tuyến | `http://localhost:3000/customer/datlichkham/order1.html` |
-| Quản lý homestay đã đặt của tôi | `http://localhost:3000/customer/datlichkham/lichUser.html` |
-| Hồ sơ thành viên & Lịch sử lưu trú | `http://localhost:3000/customer/hosoyte/hosoyte.html` |
+| Đặt homestay trực tuyến | `http://localhost:3000/customer/datphong/order1.html` |
+| Quản lý homestay đã đặt của tôi | `http://localhost:3000/customer/datphong/donDatUser.html` |
+| Hồ sơ thành viên & Lịch sử lưu trú | `http://localhost:3000/customer/hosoluutru/hosoluutru.html` |
 | Bảng điều khiển Quản lý Homestay (Admin) | `http://localhost:3000/admin-panel/admin.html` |
 
 ### 4. Trợ lý ảo StayEasy Homestay Assistant (Tùy chọn)
@@ -101,7 +101,7 @@ uvicorn server:app --reload --port 8000
 ## Cấu trúc thư mục
 
 ```
-KTPM_NHOM8/
+StayEasy-Homestay/
 ├── database.sql           # Schema cơ sở dữ liệu homestay & dữ liệu mẫu StayEasy
 ├── server.js              # RESTful API Express & Web Static Server (:3000)
 ├── package.json           # Danh sách thư viện Node.js
@@ -109,19 +109,20 @@ KTPM_NHOM8/
 ├── Khách hàng/            # Giao diện Cổng Khách hàng & Thành viên StayEasy Homestay
 │   ├── trangchupre/       # Trang chủ giới thiệu homestay & Đăng ký / Đăng nhập
 │   ├── trangchu/          # Dashboard thành viên đã đăng nhập & đổi mật khẩu
-│   ├── datlichkham/       # Quy trình đặt homestay và theo dõi đơn đặt
-│   ├── hosoyte/           # Hồ sơ thông tin thành viên & lịch sử hóa đơn lưu trú
-│   └── Picture/           # Hình ảnh, logo StayEasy & icons
+│   ├── datphong/          # Quy trình đặt phòng homestay và theo dõi đơn đặt
+│   ├── hosoluutru/        # Hồ sơ thông tin thành viên & lịch sử hóa đơn lưu trú
+│   └── Picture/           # Hình ảnh, banner homestay cao cấp & logo StayEasy
 ├── Quản trị viên/         # Bảng điều khiển Quản lý Homestay (Admin Panel)
 │   ├── admin.html         # Giao diện chính Admin StayEasy Homestay
 │   ├── admin-dashboard.js # Biểu đồ lượt đặt, thống kê căn và hoạt động
-│   ├── admin-khoa.js      # Quản lý Loại hình Homestay (Categories)
-│   ├── admin-doctors.js   # Quản lý Danh sách căn homestay & tiện ích (Units/Rooms)
-│   ├── admin-lichkham.js  # Quản lý Đơn đặt homestay (Bookings)
-│   ├── admin-hosoyte.js   # Quản lý Hồ sơ khách hàng lưu trú (Guests)
-│   └── admin-lskhambenh.js# Quản lý Lịch sử lưu trú & Hóa đơn (Stay Invoices)
+│   ├── admin-loaiphong.js # Quản lý Loại hình Homestay (Categories)
+│   ├── admin-canphong.js  # Quản lý Danh sách căn homestay & tiện ích (Rooms)
+│   ├── admin-datphong.js  # Quản lý Đơn đặt homestay (Bookings)
+│   ├── admin-hosoluutru.js# Quản lý Hồ sơ khách hàng lưu trú (Guests)
+│   ├── admin-lichsuluutru.js # Quản lý Lịch sử lưu trú & Hóa đơn (Stay Invoices)
+│   └── admin-tkhoan.js    # Quản lý tài khoản khách hàng
 ├── server.py              # Dịch vụ Chatbot FastAPI Homestay (:8000)
-├── chatbot.py             # Logic xử lý ngôn ngữ & trả lời Homestay Assistant
-└── yte/
-    └── Benh.md            # Cẩm nang thông tin dịch vụ, căn phòng & chính sách StayEasy Homestay
+├── chatbot.py             # Logic xử lý ngôn ngữ & trả lời Homestay Concierge Assistant
+└── camnang/
+    └── Homestay.md        # Cẩm nang thông tin dịch vụ, căn phòng & chính sách StayEasy Homestay
 ```

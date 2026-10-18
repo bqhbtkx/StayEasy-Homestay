@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("closeLSModal");
   const cancelBtn = document.getElementById("cancelLS");
   const form = document.getElementById("lichsuForm");
-  const apiUrl = "http://localhost:3000/api/admin/lichsu";
+  const apiUrl = "http://localhost:3000/api/admin/lichsuluutru";
 
   const idBacSiEl = document.getElementById("idBacSiLS");
   const idKhoaEl = document.getElementById("idKhoaLS");
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
         idBacSiEl.innerHTML = `<option value="">-- Chọn căn / phòng homestay --</option>`;
         return;
       }
-      const res = await fetch(`http://localhost:3000/api/bacsi/khoa/${idKhoaValue}`);
+      const res = await fetch(`http://localhost:3000/api/can-phong/loai/${idKhoaValue}`);
       if (!res.ok) throw new Error("Không lấy được danh sách căn");
       const bacsi = await res.json();
       if (!Array.isArray(bacsi) || bacsi.length === 0) {
@@ -70,8 +70,8 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadOptions(defaultKhoaId = null, selectedBacSi = null, selectedHS = null) {
     try {
       const [khoaRes, hsRes] = await Promise.all([
-        fetch("http://localhost:3000/api/khoa"),
-        fetch("http://localhost:3000/api/admin/hosoyte")
+        fetch("http://localhost:3000/api/loai-phong"),
+        fetch("http://localhost:3000/api/admin/hosoluutru")
       ]);
 
       if (!khoaRes.ok) throw new Error("Lỗi tải loại hình homestay");

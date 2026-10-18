@@ -200,6 +200,12 @@ app.use((req, res, next) => {
 const customerDir = path.join(__dirname, "Khách hàng");
 const adminDir = path.join(__dirname, "Quản trị viên");
 if (fs.existsSync(customerDir)) {
+  // Hỗ trợ chuyển tiếp tự động các đường dẫn cũ sang thư mục Homestay mới
+  app.use("/customer/datlichkham", (req, res) => res.redirect(301, "/customer/datphong" + req.url));
+  app.use("/customer/hosoyte", (req, res) => res.redirect(301, "/customer/hosoluutru" + req.url));
+  app.use("/customer/datphong/lichUser.html", (req, res) => res.redirect(301, "/customer/datphong/donDatUser.html"));
+  app.use("/customer/hosoluutru/hosoyte.html", (req, res) => res.redirect(301, "/customer/hosoluutru/hosoluutru.html"));
+
   app.use("/customer", express.static(customerDir));
   app.use("/Picture", express.static(path.join(customerDir, "Picture")));
 }
@@ -450,10 +456,10 @@ app.post("/register", (req, res) => {
           const insertHoSoSql = "INSERT INTO HOSOYTE (idKH) VALUES (?)";
           connection.query(insertHoSoSql, [newCustomerId], (err3) => {
             if (err3) {
-              console.error("Lỗi khi tạo hồ sơ y tế:", err3);
+              console.error("Lỗi khi tạo hồ sơ lưu trú:", err3);
               return connection.rollback(() => {
                 connection.release();
-                res.status(500).json({ message: "Đăng ký thất bại do không tạo được hồ sơ y tế!" });
+                res.status(500).json({ message: "Đăng ký thất bại do không tạo được hồ sơ lưu trú!" });
               });
             }
 
@@ -546,81 +552,82 @@ app.post("/login", rateLimitLogin, (req, res) => {
 });
 
 
-// ================== API KHOA (PUBLIC GET) ==================
+// ================== API LOẠI HÌNH HOMESTAY & CĂN PHÒNG ==================
 
-// 📌 Lấy danh sách khoa (public - cho trang đặt lịch)
-app.get("/api/khoa", (req, res) => {
+// 📌 Lấy danh sách loại hình homestay (public - cho trang đặt phòng)
+app.get(["/api/khoa", "/api/loai-phong", "/api/loaiphong"], (req, res) => {
   const sql = "SELECT idKhoa, tenKhoa FROM KHOA ORDER BY tenKhoa ASC";
   db.query(sql, (err, results) => {
     if (err) {
-      console.error("❌ Lỗi khi lấy danh sách khoa:", err);
-      return res.status(500).json({ message: "Lỗi máy chủ khi lấy khoa" });
+      console.error("❌ Lỗi khi lấy danh sách loại hình:", err);
+      return res.status(500).json({ message: "Lỗi máy chủ khi lấy loại hình" });
     }
     res.json(results);
   });
 });
 
-// 📌 Lấy danh sách bác sĩ theo khoa (public)
-app.get("/api/bacsi/:idKhoa", (req, res) => {
+// 📌 Lấy danh sách căn/phòng theo loại hình (public)
+app.get(["/api/bacsi/:idKhoa", "/api/can-phong/:idKhoa", "/api/canphong/:idKhoa"], (req, res) => {
   const idKhoa = req.params.idKhoa;
-  if (!isValidId(idKhoa)) return res.status(400).json({ message: "ID khoa không hợp lệ!" });
+  if (!isValidId(idKhoa)) return res.status(400).json({ message: "ID loại hình không hợp lệ!" });
 
   const sql = `SELECT idBacSi, hoTenBacSi, hocVi FROM BACSI WHERE idKhoa = ?`;
   db.query(sql, [idKhoa], (err, results) => {
     if (err) {
-      console.error("❌ Lỗi khi lấy danh sách bác sĩ:", err);
-      return res.status(500).json({ message: "Lỗi máy chủ khi lấy bác sĩ" });
+      console.error("❌ Lỗi khi lấy danh sách căn/phòng:", err);
+      return res.status(500).json({ message: "Lỗi máy chủ khi lấy căn/phòng" });
     }
     res.json(results);
   });
 });
 
-// API lấy tất cả bác sĩ (public)
-app.get("/api/bacsi-all", (req, res) => {
+// API lấy tất cả căn/phòng (public)
+app.get(["/api/bacsi-all", "/api/can-phong-all", "/api/canphong-all"], (req, res) => {
   const sql = `SELECT idBacSi, hoTenBacSi, hocVi, idKhoa FROM BACSI`;
   db.query(sql, (err, results) => {
     if (err) {
-      console.error("❌ Lỗi khi lấy tất cả bác sĩ:", err);
-      return res.status(500).json({ message: "Lỗi máy chủ khi lấy bác sĩ" });
+      console.error("❌ Lỗi khi lấy tất cả căn/phòng:", err);
+      return res.status(500).json({ message: "Lỗi máy chủ khi lấy căn/phòng" });
     }
     res.json(results);
   });
 });
 
-// 📋 Lấy danh sách bác sĩ (public - không cần param)
-app.get("/api/bacsi", (req, res) => {
+// 📋 Lấy danh sách căn/phòng (public - không cần param)
+app.get(["/api/bacsi", "/api/can-phong", "/api/canphong"], (req, res) => {
   const sql = "SELECT idBacSi, hoTenBacSi FROM BACSI";
   db.query(sql, (err, results) => {
     if (err) {
-      console.error("❌ Lỗi khi lấy danh sách bác sĩ:", err);
-      return res.status(500).json({ message: "Lỗi khi lấy danh sách bác sĩ!" });
+      console.error("❌ Lỗi khi lấy danh sách căn/phòng:", err);
+      return res.status(500).json({ message: "Lỗi khi lấy danh sách căn/phòng!" });
     }
     res.json(results);
   });
 });
 
-// 📋 Lấy danh sách bác sĩ theo khoa (endpoint phụ)
-app.get("/api/bacsi/khoa/:idKhoa", (req, res) => {
+// 📋 Lấy danh sách căn/phòng theo loại hình (endpoint phụ)
+app.get(["/api/bacsi/khoa/:idKhoa", "/api/can-phong/loai/:idKhoa"], (req, res) => {
   const { idKhoa } = req.params;
-  if (!isValidId(idKhoa)) return res.status(400).json({ message: "ID khoa không hợp lệ!" });
+  if (!isValidId(idKhoa)) return res.status(400).json({ message: "ID loại hình không hợp lệ!" });
 
   const sql = "SELECT idBacSi, hoTenBacSi FROM BACSI WHERE idKhoa = ?";
   db.query(sql, [idKhoa], (err, results) => {
     if (err) {
-      console.error("❌ Lỗi khi lấy bác sĩ theo khoa:", err);
-      return res.status(500).json({ message: "Lỗi khi lấy bác sĩ theo khoa!" });
+      console.error("❌ Lỗi khi lấy căn/phòng theo loại hình:", err);
+      return res.status(500).json({ message: "Lỗi khi lấy căn/phòng theo loại hình!" });
     }
     res.json(results);
   });
 });
 
-// Lấy các khung giờ đã được đặt của một bác sĩ theo ngày
-app.get("/api/lich-da-dat", (req, res) => {
-  const { bacsi, ngay } = req.query;
-  if (!isValidId(bacsi)) return res.status(400).json({ message: "ID bác sĩ không hợp lệ!" });
+// Lấy các khung giờ đã được đặt của một căn/phòng theo ngày
+app.get(["/api/lich-da-dat", "/api/phong-da-dat", "/api/gio-da-dat"], (req, res) => {
+  const bacsi = req.query.bacsi || req.query.canphong || req.query.phong;
+  const ngay = req.query.ngay;
+  if (!isValidId(bacsi)) return res.status(400).json({ message: "ID căn/phòng không hợp lệ!" });
 
   const formattedNgay = normalizeDateInput(String(ngay || ""), true);
-  if (!formattedNgay) return res.status(400).json({ message: "Ngày khám không hợp lệ!" });
+  if (!formattedNgay) return res.status(400).json({ message: "Ngày nhận phòng không hợp lệ!" });
 
   const sql = `
     SELECT gioKham
@@ -639,7 +646,7 @@ app.get("/api/lich-da-dat", (req, res) => {
 
 // ================== API ĐẶT PHÒNG (KHÁCH HÀNG - CẦN XÁC THỰC) ==================
 
-app.post("/api/dat-lich", authenticateToken, (req, res) => {
+app.post(["/api/dat-lich", "/api/dat-phong"], authenticateToken, (req, res) => {
   let { hoTen, lyDo, idBacSi, idKhoa, ngayKham, gioKham } = req.body;
 
   if (req.user.role !== "customer") {
@@ -754,16 +761,16 @@ app.post("/api/dat-lich", authenticateToken, (req, res) => {
 });
 
 
-// ================== API LẤY & HỦY LỊCH KHÁM (KHÁCH HÀNG) ==================
+// ================== API LẤY & HỦY ĐƠN ĐẶT PHÒNG (KHÁCH HÀNG) ==================
 
-// 📍 Lấy danh sách lịch của user - CẦN XÁC THỰC + IDOR FIX
-app.get("/api/lich-user/:idKH", authenticateToken, (req, res) => {
+// 📍 Lấy danh sách lịch đặt của user - CẦN XÁC THỰC + IDOR FIX
+app.get(["/api/lich-user/:idKH", "/api/don-dat-user/:idKH"], authenticateToken, (req, res) => {
   const idKH = req.params.idKH;
   if (!isValidId(idKH)) return res.status(400).json({ message: "ID không hợp lệ!" });
 
   // ✅ IDOR FIX: Chỉ xem được lịch của chính mình
   if (req.user.role !== "admin" && !sameId(req.user.id, idKH)) {
-    return res.status(403).json({ message: "Bạn không có quyền xem lịch khám của người khác!" });
+    return res.status(403).json({ message: "Bạn không có quyền xem đơn đặt của người khác!" });
   }
 
   const sql = `
@@ -780,7 +787,7 @@ app.get("/api/lich-user/:idKH", authenticateToken, (req, res) => {
   `;
   db.query(sql, [idKH], (err, results) => {
     if (err) {
-      console.error("❌ Lỗi khi lấy lịch khám:", err);
+      console.error("❌ Lỗi khi lấy danh sách đặt phòng:", err);
       return res.status(500).json({ message: "Lỗi máy chủ!" });
     }
     res.json(results);
@@ -788,9 +795,9 @@ app.get("/api/lich-user/:idKH", authenticateToken, (req, res) => {
 });
 
 // ✅ Hủy đặt phòng - CẦN XÁC THỰC + IDOR FIX
-app.post("/api/huy-lich", authenticateToken, (req, res) => {
-  const { idLichKham } = req.body;
-  if (!idLichKham) return res.status(400).json({ success: false, message: "Thiếu idLichKham!" });
+app.post(["/api/huy-lich", "/api/huy-dat-phong"], authenticateToken, (req, res) => {
+  const idLichKham = req.body.idLichKham || req.body.idDatPhong;
+  if (!idLichKham) return res.status(400).json({ success: false, message: "Thiếu idLichKham hoặc idDatPhong!" });
   if (!isValidId(idLichKham)) return res.status(400).json({ success: false, message: "ID đặt phòng không hợp lệ!" });
 
   const sqlGetInfo = `
@@ -834,16 +841,16 @@ app.post("/api/huy-lich", authenticateToken, (req, res) => {
 });
 
 
-// ================== API HỒ SƠ Y TẾ (KHÁCH HÀNG) ==================
+// ================== API HỒ SƠ LƯU TRÚ & THÀNH VIÊN (KHÁCH HÀNG) ==================
 
-// ✅ Xem hồ sơ y tế - CẦN XÁC THỰC + IDOR FIX
-app.get("/hosoyte/:idKH", authenticateToken, (req, res) => {
+// ✅ Xem hồ sơ thành viên - CẦN XÁC THỰC + IDOR FIX
+app.get(["/hosoyte/:idKH", "/hosoluutru/:idKH", "/api/hosoluutru/:idKH"], authenticateToken, (req, res) => {
   const idKH = req.params.idKH;
   if (!isValidId(idKH)) return res.status(400).json({ message: "ID không hợp lệ!" });
 
   // ✅ IDOR FIX: Chỉ xem được hồ sơ của chính mình
   if (req.user.role !== "admin" && !sameId(req.user.id, idKH)) {
-    return res.status(403).json({ message: "Bạn không có quyền xem hồ sơ y tế của người khác!" });
+    return res.status(403).json({ message: "Bạn không có quyền xem hồ sơ của người khác!" });
   }
 
   const khSql = `
@@ -854,13 +861,13 @@ app.get("/hosoyte/:idKH", authenticateToken, (req, res) => {
   `;
   db.query(khSql, [idKH], (err, khResults) => {
     if (err) return res.status(500).json({ message: "Lỗi server!" });
-    if (khResults.length === 0) return res.json({ benhnhan: null, lichsu: [] });
+    if (khResults.length === 0) return res.json({ khachhang: null, benhnhan: null, lichsu: [] });
 
     const benhnhan = khResults[0];
     const hsSql = "SELECT idHoSoYTe, idKH FROM HOSOYTE WHERE idKH = ?";
     db.query(hsSql, [idKH], (err2, hsResults) => {
       if (err2) return res.status(500).json({ message: "Lỗi server!" });
-      if (hsResults.length === 0) return res.json({ benhnhan, lichsu: [] });
+      if (hsResults.length === 0) return res.json({ khachhang: benhnhan, benhnhan, lichsu: [] });
 
       const hoSoYTe = hsResults[0];
       const lsSql = `
@@ -873,7 +880,7 @@ app.get("/hosoyte/:idKH", authenticateToken, (req, res) => {
       `;
       db.query(lsSql, [hoSoYTe.idHoSoYTe], (err3, lsResults) => {
         if (err3) return res.status(500).json({ message: "Lỗi server!" });
-        res.json({ benhnhan, lichsu: lsResults });
+        res.json({ khachhang: benhnhan, benhnhan, lichsu: lsResults });
       });
     });
   });
@@ -1041,9 +1048,9 @@ app.delete("/api/taikhoan/:idKH", authenticateToken, requireAdmin, (req, res) =>
 
       if ((lichsuCount > 0 || lichCount > 0 || hosoCount > 0) && force !== "true") {
         let msg = `⚠️ Tài khoản ID ${idKH} có dữ liệu liên kết:\n`;
-        if (hosoCount > 0) msg += `- ${hosoCount} hồ sơ y tế\n`;
-        if (lichsuCount > 0) msg += `- ${lichsuCount} lịch sử khám bệnh\n`;
-        if (lichCount > 0) msg += `- ${lichCount} lịch khám\n`;
+        if (hosoCount > 0) msg += `- ${hosoCount} hồ sơ lưu trú\n`;
+        if (lichsuCount > 0) msg += `- ${lichsuCount} lịch sử lưu trú\n`;
+        if (lichCount > 0) msg += `- ${lichCount} đơn đặt homestay\n`;
         msg += "\nBạn có muốn xóa toàn bộ dữ liệu này không?";
         return res.json({ requireConfirm: true, message: msg, details: { lichsuCount, lichCount, hosoCount } });
       }
@@ -1070,55 +1077,55 @@ app.delete("/api/taikhoan/:idKH", authenticateToken, requireAdmin, (req, res) =>
 });
 
 
-// ================== API QUẢN LÝ KHOA (ADMIN) ==================
+// ================== API QUẢN LÝ LOẠI HÌNH HOMESTAY (ADMIN) ==================
 
-// ➕ Thêm khoa
-app.post("/api/khoa", authenticateToken, requireAdmin, (req, res) => {
-  const { tenKhoa } = req.body;
+// ➕ Thêm loại hình homestay
+app.post(["/api/khoa", "/api/loai-phong", "/api/loaiphong"], authenticateToken, requireAdmin, (req, res) => {
+  const tenKhoa = req.body.tenKhoa || req.body.tenLoaiPhong;
   if (!tenKhoa || !tenKhoa.trim()) {
-    return res.status(400).json({ message: "Tên khoa không được để trống!" });
+    return res.status(400).json({ message: "Tên loại hình homestay không được để trống!" });
   }
 
   const safeTenKhoa = escapeHtml(tenKhoa.trim());
   const sql = "INSERT INTO KHOA (tenKhoa) VALUES (?)";
   db.query(sql, [safeTenKhoa], (err, result) => {
     if (err) {
-      console.error("❌ Lỗi khi thêm khoa:", err);
-      return res.status(500).json({ message: "Thêm khoa thất bại!" });
+      console.error("❌ Lỗi khi thêm loại hình homestay:", err);
+      return res.status(500).json({ message: "Thêm loại hình homestay thất bại!" });
     }
-    logActivity("THÊM KHOA", `Admin thêm khoa mới: ${safeTenKhoa}`);
-    res.json({ success: true, message: "✅ Thêm khoa thành công!", id: result.insertId });
+    logActivity("THÊM LOẠI HÌNH", `Admin thêm loại hình mới: ${safeTenKhoa}`);
+    res.json({ success: true, message: "✅ Thêm loại hình homestay thành công!", id: result.insertId });
   });
 });
 
-// ✏️ Sửa khoa
-app.put("/api/khoa/:id", authenticateToken, requireAdmin, (req, res) => {
+// ✏️ Sửa loại hình homestay
+app.put(["/api/khoa/:id", "/api/loai-phong/:id", "/api/loaiphong/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
-  if (!isValidId(id)) return res.status(400).json({ message: "ID khoa không hợp lệ!" });
-  const { tenKhoa } = req.body;
+  if (!isValidId(id)) return res.status(400).json({ message: "ID loại hình không hợp lệ!" });
+  const tenKhoa = req.body.tenKhoa || req.body.tenLoaiPhong;
   if (!tenKhoa || !tenKhoa.trim()) {
-    return res.status(400).json({ message: "Tên khoa không được để trống!" });
+    return res.status(400).json({ message: "Tên loại hình homestay không được để trống!" });
   }
 
   const safeTenKhoa = escapeHtml(tenKhoa.trim());
   const sql = "UPDATE KHOA SET tenKhoa = ? WHERE idKhoa = ?";
   db.query(sql, [safeTenKhoa, id], (err, result) => {
     if (err) {
-      console.error("❌ Lỗi khi cập nhật khoa:", err);
-      return res.status(500).json({ message: "Cập nhật khoa thất bại!" });
+      console.error("❌ Lỗi khi cập nhật loại hình:", err);
+      return res.status(500).json({ message: "Cập nhật loại hình homestay thất bại!" });
     }
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Không tìm thấy khoa!" });
+      return res.status(404).json({ message: "Không tìm thấy loại hình homestay!" });
     }
-    logActivity("CẬP NHẬT KHOA", `Admin cập nhật khoa ID: ${id} thành "${safeTenKhoa}"`);
-    res.json({ success: true, message: "✅ Cập nhật khoa thành công!" });
+    logActivity("CẬP NHẬT LOẠI HÌNH", `Admin cập nhật loại hình ID: ${id} thành "${safeTenKhoa}"`);
+    res.json({ success: true, message: "✅ Cập nhật loại hình homestay thành công!" });
   });
 });
 
-// 🗑️ Xóa khoa — có xác nhận & xóa dây chuyền
-app.delete("/api/khoa/:id", authenticateToken, requireAdmin, (req, res) => {
+// 🗑️ Xóa loại hình homestay — có xác nhận & xóa dây chuyền
+app.delete(["/api/khoa/:id", "/api/loai-phong/:id", "/api/loaiphong/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
-  if (!isValidId(id)) return res.status(400).json({ message: "ID khoa không hợp lệ!" });
+  if (!isValidId(id)) return res.status(400).json({ message: "ID loại hình không hợp lệ!" });
   const { force } = req.query;
 
   const sqlCheck = `
@@ -1129,19 +1136,19 @@ app.delete("/api/khoa/:id", authenticateToken, requireAdmin, (req, res) => {
   `;
   db.query(sqlCheck, [id], (err, bacsi) => {
     if (err) {
-      console.error("❌ Lỗi khi kiểm tra bác sĩ:", err);
+      console.error("❌ Lỗi khi kiểm tra căn homestay:", err);
       return res.status(500).json({ message: "Lỗi khi kiểm tra dữ liệu!" });
     }
 
     if (bacsi.length > 0 && force !== "true") {
       const totalLich = bacsi.reduce((a, b) => a + b.lichCount, 0);
       const totalLS = bacsi.reduce((a, b) => a + b.lichsuCount, 0);
-      let msg = `⚠️ Khoa này có ${bacsi.length} bác sĩ.`;
-      msg += totalLich > 0 ? `\n- Tổng ${totalLich} lịch khám.` : "";
-      msg += totalLS > 0 ? `\n- Tổng ${totalLS} lịch sử khám bệnh.` : "";
+      let msg = `⚠️ Loại hình này có ${bacsi.length} căn homestay.`;
+      msg += totalLich > 0 ? `\n- Tổng ${totalLich} đơn đặt homestay.` : "";
+      msg += totalLS > 0 ? `\n- Tổng ${totalLS} lịch sử lưu trú.` : "";
       msg += "\n\nBạn có muốn xóa toàn bộ không?";
 
-      return res.json({ requireConfirm: true, message: msg, doctors: bacsi });
+      return res.json({ requireConfirm: true, message: msg, doctors: bacsi, rooms: bacsi });
     }
 
     const delLichSu = `DELETE lsu FROM LICHSUKHAMBENH lsu JOIN BACSI b ON lsu.idBacSi = b.idBacSi WHERE b.idKhoa = ?;`;
@@ -1156,106 +1163,111 @@ app.delete("/api/khoa/:id", authenticateToken, requireAdmin, (req, res) => {
       { sql: delKhoa, params: [id] },
     ], () => {
       const logMsg = bacsi.length > 0
-        ? `Admin xóa khoa ID: ${id} cùng ${bacsi.length} bác sĩ và dữ liệu liên quan`
-        : `Admin xóa khoa ID: ${id}`;
-      logActivity("XÓA KHOA", logMsg);
-      res.json({ success: true, message: "🗑️ Đã xóa khoa và toàn bộ bác sĩ, lịch khám, lịch sử khám liên quan!" });
+        ? `Admin xóa loại hình ID: ${id} cùng ${bacsi.length} căn homestay và dữ liệu liên quan`
+        : `Admin xóa loại hình ID: ${id}`;
+      logActivity("XÓA LOẠI HÌNH", logMsg);
+      res.json({ success: true, message: "🗑️ Đã xóa loại hình homestay và toàn bộ căn, đơn đặt, lịch sử lưu trú liên quan!" });
     }, (deleteErr) => {
-      console.error("❌ Lỗi khi xóa khoa:", deleteErr);
-      res.status(500).json({ message: "Xóa khoa thất bại!" });
+      console.error("❌ Lỗi khi xóa loại hình homestay:", deleteErr);
+      res.status(500).json({ message: "Xóa loại hình homestay thất bại!" });
     });
   });
 });
 
 
-// ================== API QUẢN LÝ BÁC SĨ (ADMIN) ==================
+// ================== API QUẢN LÝ CĂN / PHÒNG HOMESTAY (ADMIN) ==================
 
-// 🔍 Lấy danh sách bác sĩ (có tìm kiếm)
-app.get("/api/admin/bacsi", authenticateToken, requireAdmin, (req, res) => {
+// 🔍 Lấy danh sách căn/phòng (có tìm kiếm)
+app.get(["/api/admin/bacsi", "/api/admin/canphong"], authenticateToken, requireAdmin, (req, res) => {
   const keyword = req.query.q ? `%${req.query.q}%` : "%";
   const sql = `
-    SELECT b.idBacSi, b.hoTenBacSi, b.hocVi, b.idKhoa, k.tenKhoa
+    SELECT b.idBacSi, b.hoTenBacSi, b.hocVi, b.idKhoa, k.tenKhoa,
+           b.idBacSi AS idCanPhong, b.hoTenBacSi AS tenCanPhong, b.idKhoa AS idLoaiPhong, k.tenKhoa AS tenLoaiPhong
     FROM BACSI b JOIN KHOA k ON b.idKhoa = k.idKhoa
     WHERE b.hoTenBacSi LIKE ? OR b.hocVi LIKE ? OR k.tenKhoa LIKE ?
     ORDER BY b.idBacSi DESC
   `;
   db.query(sql, [keyword, keyword, keyword], (err, results) => {
     if (err) {
-      console.error("❌ Lỗi khi lấy danh sách bác sĩ:", err);
-      return res.status(500).json({ message: "Lỗi máy chủ khi lấy danh sách bác sĩ!" });
+      console.error("❌ Lỗi khi lấy danh sách căn homestay:", err);
+      return res.status(500).json({ message: "Lỗi máy chủ khi lấy danh sách căn homestay!" });
     }
     res.json(results);
   });
 });
 
-// ➕ Thêm bác sĩ
-app.post("/api/admin/bacsi", authenticateToken, requireAdmin, (req, res) => {
-  const { hoTenBacSi, hocVi, idKhoa } = req.body;
+// ➕ Thêm căn/phòng
+app.post(["/api/admin/bacsi", "/api/admin/canphong"], authenticateToken, requireAdmin, (req, res) => {
+  const hoTenBacSi = req.body.hoTenBacSi || req.body.tenCanPhong;
+  const hocVi = req.body.hocVi || req.body.loaiPhongChiTiet || "";
+  const idKhoa = req.body.idKhoa || req.body.idLoaiPhong;
 
   if (!hoTenBacSi || !idKhoa) {
     return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
   }
-  if (!isValidId(idKhoa)) return res.status(400).json({ message: "ID khoa không hợp lệ!" });
+  if (!isValidId(idKhoa)) return res.status(400).json({ message: "ID loại hình homestay không hợp lệ!" });
 
   const safeHoTen = escapeHtml(String(hoTenBacSi).trim());
   const safeHocVi = escapeHtml(String(hocVi || "").trim());
   const sql = `INSERT INTO BACSI (hoTenBacSi, hocVi, idKhoa) VALUES (?, ?, ?)`;
   db.query("SELECT idKhoa FROM KHOA WHERE idKhoa = ?", [idKhoa], (errKhoa, khoaRows) => {
-    if (errKhoa) return res.status(500).json({ message: "Lỗi kiểm tra khoa!" });
-    if (khoaRows.length === 0) return res.status(400).json({ message: "Khoa không tồn tại!" });
+    if (errKhoa) return res.status(500).json({ message: "Lỗi kiểm tra loại hình!" });
+    if (khoaRows.length === 0) return res.status(400).json({ message: "Loại hình homestay không tồn tại!" });
 
     db.query(sql, [safeHoTen, safeHocVi, idKhoa], (err, result) => {
       if (err) {
-        console.error("❌ Lỗi khi thêm bác sĩ:", err);
-        return res.status(500).json({ message: "Thêm bác sĩ thất bại!" });
+        console.error("❌ Lỗi khi thêm căn homestay:", err);
+        return res.status(500).json({ message: "Thêm căn homestay thất bại!" });
       }
-      logActivity("THÊM BÁC SĨ", `Admin thêm: ${safeHoTen}`);
-      res.json({ success: true, message: "Thêm bác sĩ thành công!", id: result.insertId });
+      logActivity("THÊM CĂN", `Admin thêm căn homestay: ${safeHoTen}`);
+      res.json({ success: true, message: "Thêm căn homestay thành công!", id: result.insertId });
     });
   });
 });
 
-// ✏️ Cập nhật bác sĩ
-app.put("/api/admin/bacsi/:id", authenticateToken, requireAdmin, (req, res) => {
+// ✏️ Cập nhật căn/phòng
+app.put(["/api/admin/bacsi/:id", "/api/admin/canphong/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return res.status(400).json({ message: "ID không hợp lệ!" });
-  const { hoTenBacSi, hocVi, idKhoa } = req.body;
+  const hoTenBacSi = req.body.hoTenBacSi || req.body.tenCanPhong;
+  const hocVi = req.body.hocVi || req.body.loaiPhongChiTiet || "";
+  const idKhoa = req.body.idKhoa || req.body.idLoaiPhong;
 
   if (!hoTenBacSi || !String(hoTenBacSi).trim() || !idKhoa) {
     return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
   }
-  if (!isValidId(idKhoa)) return res.status(400).json({ message: "ID khoa không hợp lệ!" });
+  if (!isValidId(idKhoa)) return res.status(400).json({ message: "ID loại hình homestay không hợp lệ!" });
 
   const safeHoTen = escapeHtml(String(hoTenBacSi).trim());
   const safeHocVi = escapeHtml(String(hocVi || "").trim());
   const sql = `UPDATE BACSI SET hoTenBacSi = ?, hocVi = ?, idKhoa = ? WHERE idBacSi = ?`;
   db.query("SELECT idKhoa FROM KHOA WHERE idKhoa = ?", [idKhoa], (errKhoa, khoaRows) => {
-    if (errKhoa) return res.status(500).json({ message: "Lỗi kiểm tra khoa!" });
-    if (khoaRows.length === 0) return res.status(400).json({ message: "Khoa không tồn tại!" });
+    if (errKhoa) return res.status(500).json({ message: "Lỗi kiểm tra loại hình!" });
+    if (khoaRows.length === 0) return res.status(400).json({ message: "Loại hình homestay không tồn tại!" });
 
     db.query(sql, [safeHoTen, safeHocVi, idKhoa, id], (err, result) => {
       if (err) {
-        console.error("❌ Lỗi khi cập nhật bác sĩ:", err);
-        return res.status(500).json({ message: "Cập nhật bác sĩ thất bại!" });
+        console.error("❌ Lỗi khi cập nhật căn homestay:", err);
+        return res.status(500).json({ message: "Cập nhật căn homestay thất bại!" });
       }
       if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Không tìm thấy bác sĩ!" });
+        return res.status(404).json({ message: "Không tìm thấy căn homestay!" });
       }
-      logActivity("CẬP NHẬT BÁC SĨ", `Admin cập nhật bác sĩ ID ${id}: ${safeHoTen}`);
-      res.json({ success: true, message: "Cập nhật bác sĩ thành công!" });
+      logActivity("CẬP NHẬT CĂN", `Admin cập nhật căn ID ${id}: ${safeHoTen}`);
+      res.json({ success: true, message: "Cập nhật căn homestay thành công!" });
     });
   });
 });
-// 🗑️ Xóa bác sĩ
-app.delete("/api/admin/bacsi/:id", authenticateToken, requireAdmin, (req, res) => {
+// 🗑️ Xóa căn/phòng
+app.delete(["/api/admin/bacsi/:id", "/api/admin/canphong/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return res.status(400).json({ message: "ID không hợp lệ!" });
   const { force } = req.query;
 
   const checkBacSi = "SELECT idBacSi FROM BACSI WHERE idBacSi = ?";
   db.query(checkBacSi, [id], (err, bsResult) => {
-    if (err) return res.status(500).json({ message: "Lỗi kiểm tra bác sĩ!" });
-    if (bsResult.length === 0) return res.status(404).json({ message: "Không tìm thấy bác sĩ!" });
+    if (err) return res.status(500).json({ message: "Lỗi kiểm tra căn homestay!" });
+    if (bsResult.length === 0) return res.status(404).json({ message: "Không tìm thấy căn homestay!" });
 
     const sqlCheck = `
       SELECT 
@@ -1264,7 +1276,7 @@ app.delete("/api/admin/bacsi/:id", authenticateToken, requireAdmin, (req, res) =
     `;
     db.query(sqlCheck, [id, id], (err2, countResult) => {
       if (err2) {
-        console.error("❌ Lỗi kiểm tra ràng buộc bác sĩ:", err2);
+        console.error("❌ Lỗi kiểm tra ràng buộc căn homestay:", err2);
         return res.status(500).json({ message: "Lỗi khi kiểm tra dữ liệu liên quan!" });
       }
 
@@ -1273,7 +1285,7 @@ app.delete("/api/admin/bacsi/:id", authenticateToken, requireAdmin, (req, res) =
       if ((lichsuCount > 0 || lichCount > 0) && force !== "true") {
         return res.json({
           requireConfirm: true,
-          message: `⚠️ Bác sĩ này có ${lichCount} lịch khám và ${lichsuCount} lịch sử khám. Bạn có muốn xóa toàn bộ không?`
+          message: `⚠️ Căn homestay này có ${lichCount} đơn đặt và ${lichsuCount} lịch sử lưu trú. Bạn có muốn xóa toàn bộ không?`
         });
       }
 
@@ -1285,16 +1297,16 @@ app.delete("/api/admin/bacsi/:id", authenticateToken, requireAdmin, (req, res) =
         { sql: delLichSu, params: [id] },
         { sql: delBacSi, params: [id] },
       ], () => {
-        logActivity("XÓA BÁC SĨ", `Admin xóa bác sĩ ID: ${id}` + (lichsuCount > 0 || lichCount > 0 ? ` (cùng ${lichCount} lịch khám và ${lichsuCount} lịch sử khám)` : ''));
+        logActivity("XÓA CĂN", `Admin xóa căn ID: ${id}` + (lichsuCount > 0 || lichCount > 0 ? ` (cùng ${lichCount} đơn đặt và ${lichsuCount} lịch sử lưu trú)` : ''));
         res.json({
           success: true,
           message: lichsuCount > 0 || lichCount > 0
-            ? "🗑️ Đã xóa bác sĩ và toàn bộ lịch khám, lịch sử khám liên quan!"
-            : "🗑️ Đã xóa bác sĩ thành công!"
+            ? "🗑️ Đã xóa căn homestay và toàn bộ đơn đặt, lịch sử lưu trú liên quan!"
+            : "🗑️ Đã xóa căn homestay thành công!"
         });
       }, (deleteErr) => {
-        console.error("❌ Lỗi khi xóa bác sĩ:", deleteErr);
-        res.status(500).json({ message: "Xóa bác sĩ thất bại!" });
+        console.error("❌ Lỗi khi xóa căn homestay:", deleteErr);
+        res.status(500).json({ message: "Xóa căn homestay thất bại!" });
       });
     });
   });
@@ -1314,11 +1326,12 @@ app.get("/api/admin/khachhang/:id", authenticateToken, requireAdmin, (req, res) 
   });
 });
 
-// 📋 Lấy tất cả lịch khám
-app.get("/api/admin/lichkham", authenticateToken, requireAdmin, (req, res) => {
+// 📋 Lấy tất cả đơn đặt phòng
+app.get(["/api/admin/lichkham", "/api/admin/datphong"], authenticateToken, requireAdmin, (req, res) => {
   const sql = `
     SELECT l.idLichKham, l.idKH, l.hoTen, l.lyDo, l.ngayKham, l.gioKham, l.trangThai,
-           b.hoTenBacSi AS tenBacSi, k.tenKhoa AS tenKhoa
+           b.hoTenBacSi AS tenBacSi, k.tenKhoa AS tenKhoa,
+           l.idLichKham AS idDatPhong, b.hoTenBacSi AS tenCanPhong, k.tenKhoa AS tenLoaiPhong
     FROM LICHKHAM l
     JOIN BACSI b ON l.idBacSi = b.idBacSi
     JOIN KHOA k ON l.idKhoa = k.idKhoa
@@ -1326,15 +1339,15 @@ app.get("/api/admin/lichkham", authenticateToken, requireAdmin, (req, res) => {
   `;
   db.query(sql, (err, results) => {
     if (err) {
-      console.error("❌ Lỗi khi lấy danh sách lịch khám:", err);
-      return res.status(500).json({ message: "Lỗi máy chủ khi lấy lịch khám!" });
+      console.error("❌ Lỗi khi lấy danh sách đặt phòng:", err);
+      return res.status(500).json({ message: "Lỗi máy chủ khi lấy danh sách đặt phòng!" });
     }
     res.json(results);
   });
 });
 
-// ➕ Thêm lịch khám (Admin thêm trực tiếp)
-app.post("/api/admin/lichkham", authenticateToken, requireAdmin, (req, res) => {
+// ➕ Thêm đơn đặt phòng (Admin thêm trực tiếp)
+app.post(["/api/admin/lichkham", "/api/admin/datphong"], authenticateToken, requireAdmin, (req, res) => {
   const { idKH, hoTen, lyDo, ngayKham, gioKham, idBacSi, idKhoa } = req.body;
 
   if (!idKH || !hoTen || !String(hoTen).trim() || !ngayKham || !gioKham || !idBacSi || !idKhoa) {
@@ -1345,12 +1358,12 @@ app.post("/api/admin/lichkham", authenticateToken, requireAdmin, (req, res) => {
   }
 
   const formattedNgay = normalizeDateInput(ngayKham, false);
-  if (!formattedNgay) return res.status(400).json({ message: "Ngày khám không hợp lệ!" });
+  if (!formattedNgay) return res.status(400).json({ message: "Ngày nhận phòng không hợp lệ!" });
   if (isPastDate(formattedNgay)) {
-    return res.status(400).json({ message: "Không thể thêm lịch khám trong quá khứ!" });
+    return res.status(400).json({ message: "Không thể thêm đơn đặt phòng trong quá khứ!" });
   }
   const formattedGio = normalizeTimeInput(gioKham);
-  if (!formattedGio) return res.status(400).json({ message: "Giờ khám không hợp lệ!" });
+  if (!formattedGio) return res.status(400).json({ message: "Giờ check-in không hợp lệ!" });
 
   const safeHoTen = escapeHtml(String(hoTen).trim());
   const safeLyDo = escapeHtml(lyDo || "");
@@ -1364,16 +1377,16 @@ app.post("/api/admin/lichkham", authenticateToken, requireAdmin, (req, res) => {
 
     const checkBacSiKhoa = "SELECT idBacSi FROM BACSI WHERE idBacSi = ? AND idKhoa = ?";
     db.query(checkBacSiKhoa, [idBacSi, idKhoa], (err2, bsRows) => {
-      if (err2) return res.status(500).json({ message: "Lỗi kiểm tra bác sĩ!" });
+      if (err2) return res.status(500).json({ message: "Lỗi kiểm tra căn homestay!" });
       if (bsRows.length === 0) {
-        return res.status(400).json({ message: "Bác sĩ không thuộc khoa đã chọn!" });
+        return res.status(400).json({ message: "Căn homestay không thuộc loại hình đã chọn!" });
       }
 
       const checkDuplicate = "SELECT idLichKham FROM LICHKHAM WHERE idBacSi = ? AND ngayKham = ? AND gioKham = ? AND LOWER(trangThai) <> 'đã hủy'";
       db.query(checkDuplicate, [idBacSi, formattedNgay, formattedGio], (err3, dupRows) => {
         if (err3) return res.status(500).json({ message: "Lỗi kiểm tra trùng lịch!" });
         if (dupRows.length > 0) {
-          return res.status(400).json({ message: "Bác sĩ đã có lịch khám vào khung giờ này!" });
+          return res.status(400).json({ message: "Căn homestay đã có đơn đặt vào khung giờ này!" });
         }
 
         const sql = `
@@ -1382,19 +1395,19 @@ app.post("/api/admin/lichkham", authenticateToken, requireAdmin, (req, res) => {
         `;
         db.query(sql, [safeHoTen, safeLyDo || null, formattedNgay, formattedGio, idKH, idBacSi, idKhoa], (err4) => {
           if (err4) {
-            console.error("❌ Lỗi khi thêm lịch khám:", err4);
-            return res.status(500).json({ message: "Thêm lịch khám thất bại!" });
+            console.error("❌ Lỗi khi thêm đơn đặt phòng:", err4);
+            return res.status(500).json({ message: "Thêm đơn đặt phòng thất bại!" });
           }
-          logActivity("THÊM LỊCH (ADMIN)", `Admin đặt lịch khám cho: ${safeHoTen} (ID KH: ${idKH})`);
-          res.json({ success: true, message: "✅ Thêm lịch khám thành công!" });
+          logActivity("THÊM ĐẶT PHÒNG", `Admin tạo đơn đặt phòng cho: ${safeHoTen} (ID KH: ${idKH})`);
+          res.json({ success: true, message: "✅ Thêm đơn đặt phòng thành công!" });
         });
       });
     });
   });
 });
 
-// ✏️ Cập nhật trạng thái lịch khám
-app.put("/api/admin/lichkham/:id", authenticateToken, requireAdmin, (req, res) => {
+// ✏️ Cập nhật trạng thái đơn đặt
+app.put(["/api/admin/lichkham/:id", "/api/admin/datphong/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return res.status(400).json({ message: "ID không hợp lệ!" });
   const trangThai = typeof req.body.trangThai === "string" ? req.body.trangThai.trim().toLowerCase() : "";
@@ -1405,11 +1418,11 @@ app.put("/api/admin/lichkham/:id", authenticateToken, requireAdmin, (req, res) =
   const sql = "UPDATE LICHKHAM SET trangThai = ? WHERE idLichKham = ?";
   db.query(sql, [trangThai, id], (err, result) => {
     if (err) {
-      console.error("❌ Lỗi khi cập nhật lịch khám:", err);
+      console.error("❌ Lỗi khi cập nhật đơn đặt phòng:", err);
       return res.status(500).json({ message: "Cập nhật thất bại!" });
     }
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Không tìm thấy lịch khám!" });
+      return res.status(404).json({ message: "Không tìm thấy đơn đặt phòng!" });
     }
 
     const sqlHoTen = `
@@ -1420,14 +1433,14 @@ app.put("/api/admin/lichkham/:id", authenticateToken, requireAdmin, (req, res) =
     db.query(sqlHoTen, [id], (err2, rows) => {
       let hoTen = "Không rõ";
       if (!err2 && rows.length > 0) hoTen = rows[0].hoTen;
-      logActivity("CẬP NHẬT LỊCH", `Admin cập nhật lịch khám ${hoTen} → ${trangThai}`);
+      logActivity("CẬP NHẬT ĐẶT PHÒNG", `Admin cập nhật đơn đặt phòng ${hoTen} → ${trangThai}`);
       res.json({ success: true, message: "✅ Cập nhật trạng thái thành công!" });
     });
   });
 });
 
-// 🗑️ Xóa lịch khám
-app.delete("/api/admin/lichkham/:id", authenticateToken, requireAdmin, (req, res) => {
+// 🗑️ Xóa đơn đặt
+app.delete(["/api/admin/lichkham/:id", "/api/admin/datphong/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return res.status(400).json({ message: "ID không hợp lệ!" });
 
@@ -1443,25 +1456,26 @@ app.delete("/api/admin/lichkham/:id", authenticateToken, requireAdmin, (req, res
     const sql = "DELETE FROM LICHKHAM WHERE idLichKham = ?";
     db.query(sql, [id], (err, result) => {
       if (err) {
-        console.error("❌ Lỗi khi xóa lịch khám:", err);
-        return res.status(500).json({ message: "Xóa lịch khám thất bại!" });
+        console.error("❌ Lỗi khi xóa đơn đặt phòng:", err);
+        return res.status(500).json({ message: "Xóa đơn đặt phòng thất bại!" });
       }
       if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Không tìm thấy lịch khám!" });
+        return res.status(404).json({ message: "Không tìm thấy đơn đặt phòng!" });
       }
-      logActivity("XÓA LỊCH KHÁM", `Admin xóa lịch khám của: ${hoTen}`);
-      res.json({ success: true, message: "🗑️ Xóa lịch khám thành công!" });
+      logActivity("XÓA ĐẶT PHÒNG", `Admin xóa đơn đặt phòng của: ${hoTen}`);
+      res.json({ success: true, message: "🗑️ Xóa đơn đặt phòng thành công!" });
     });
   });
 });
 
 
-// ================== API QUẢN LÝ HỒ SƠ Y TẾ (ADMIN) ==================
+// ================== API QUẢN LÝ HỒ SƠ LƯU TRÚ (ADMIN) ==================
 
-// 📋 Lấy danh sách hồ sơ y tế
-app.get("/api/admin/hosoyte", authenticateToken, requireAdmin, (req, res) => {
+// 📋 Lấy danh sách hồ sơ khách lưu trú
+app.get(["/api/admin/hosoyte", "/api/admin/hosoluutru"], authenticateToken, requireAdmin, (req, res) => {
   const sql = `
-    SELECT h.idHoSoYTe, k.idKH
+    SELECT h.idHoSoYTe, k.idKH,
+           h.idHoSoYTe AS idHoSoLuuTru
     FROM HOSOYTE h
     JOIN KHACHHANG k ON h.idKH = k.idKH
     ORDER BY h.idHoSoYTe DESC
@@ -1469,14 +1483,14 @@ app.get("/api/admin/hosoyte", authenticateToken, requireAdmin, (req, res) => {
   db.query(sql, (err, results) => {
     if (err) {
       console.error("❌ Lỗi khi lấy danh sách hồ sơ:", err);
-      return res.status(500).json({ message: "Lỗi khi lấy danh sách hồ sơ y tế!" });
+      return res.status(500).json({ message: "Lỗi khi lấy danh sách hồ sơ lưu trú!" });
     }
     res.json(results);
   });
 });
 
-// ➕ Thêm hồ sơ y tế mới
-app.post("/api/admin/hosoyte", authenticateToken, requireAdmin, (req, res) => {
+// ➕ Thêm hồ sơ khách lưu trú mới
+app.post(["/api/admin/hosoyte", "/api/admin/hosoluutru"], authenticateToken, requireAdmin, (req, res) => {
   const { idKH } = req.body;
   if (!idKH) return res.status(400).json({ message: "Vui lòng nhập ID khách hàng!" });
   if (!isValidId(idKH)) return res.status(400).json({ message: "ID không hợp lệ!" });
@@ -1489,41 +1503,42 @@ app.post("/api/admin/hosoyte", authenticateToken, requireAdmin, (req, res) => {
     const checkHS = "SELECT idHoSoYTe FROM HOSOYTE WHERE idKH = ?";
     db.query(checkHS, [idKH], (err2, hsResults) => {
       if (err2) return res.status(500).json({ message: "Lỗi kiểm tra hồ sơ!" });
-      if (hsResults.length > 0) return res.status(400).json({ message: "⚠️ Khách hàng này đã có hồ sơ y tế!" });
+      if (hsResults.length > 0) return res.status(400).json({ message: "⚠️ Khách hàng này đã có hồ sơ lưu trú!" });
 
       const insertSql = "INSERT INTO HOSOYTE (idKH) VALUES (?)";
       db.query(insertSql, [idKH], (err3) => {
         if (err3) {
           console.error("❌ Lỗi khi thêm hồ sơ:", err3);
-          return res.status(500).json({ message: "Thêm hồ sơ thất bại!" });
+          return res.status(500).json({ message: "Thêm hồ sơ lưu trú thất bại!" });
         }
-        logActivity("THÊM HỒ SƠ", `Admin tạo hồ sơ y tế cho: ID: ${idKH}`);
-        res.json({ success: true, message: "✅ Thêm hồ sơ y tế thành công!" });
+        logActivity("THÊM HỒ SƠ", `Admin tạo hồ sơ lưu trú cho: ID: ${idKH}`);
+        res.json({ success: true, message: "✅ Thêm hồ sơ lưu trú thành công!" });
       });
     });
   });
 });
 
 // 👁️ Xem chi tiết hồ sơ
-app.get("/api/admin/hosoyte/:id", authenticateToken, requireAdmin, (req, res) => {
+app.get(["/api/admin/hosoyte/:id", "/api/admin/hosoluutru/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return res.status(400).json({ message: "ID không hợp lệ!" });
 
   const sql = `
-    SELECT h.idHoSoYTe, k.idKH, k.hoTen, k.gioiTinh, k.sdt, k.ngayThangNamSinh, k.diaChi
+    SELECT h.idHoSoYTe, k.idKH, k.hoTen, k.gioiTinh, k.sdt, k.ngayThangNamSinh, k.diaChi,
+           h.idHoSoYTe AS idHoSoLuuTru
     FROM HOSOYTE h
     JOIN KHACHHANG k ON h.idKH = k.idKH
     WHERE h.idHoSoYTe = ?
   `;
   db.query(sql, [id], (err, results) => {
     if (err) return res.status(500).json({ message: "Lỗi khi xem hồ sơ!" });
-    if (results.length === 0) return res.status(404).json({ message: "Không tìm thấy hồ sơ!" });
+    if (results.length === 0) return res.status(404).json({ message: "Không tìm thấy hồ sơ lưu trú!" });
     res.json(results[0]);
   });
 });
 
-// 🗑️ Xóa hồ sơ y tế
-app.delete("/api/admin/hosoyte/:id", authenticateToken, requireAdmin, (req, res) => {
+// 🗑️ Xóa hồ sơ khách lưu trú
+app.delete(["/api/admin/hosoyte/:id", "/api/admin/hosoluutru/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return res.status(400).json({ message: "ID không hợp lệ!" });
   const { force } = req.query;
@@ -1531,17 +1546,17 @@ app.delete("/api/admin/hosoyte/:id", authenticateToken, requireAdmin, (req, res)
   const getHoSo = "SELECT idHoSoYTe FROM HOSOYTE WHERE idHoSoYTe = ?";
   db.query(getHoSo, [id], (err, hsResults) => {
     if (err) return res.status(500).json({ message: "Lỗi kiểm tra hồ sơ!" });
-    if (hsResults.length === 0) return res.status(404).json({ message: "Không tìm thấy hồ sơ y tế!" });
+    if (hsResults.length === 0) return res.status(404).json({ message: "Không tìm thấy hồ sơ lưu trú!" });
 
     const checkLichSu = "SELECT COUNT(*) AS count FROM LICHSUKHAMBENH WHERE idHoSoYTe = ?";
     db.query(checkLichSu, [id], (err2, lsResults) => {
-      if (err2) return res.status(500).json({ message: "Lỗi kiểm tra lịch sử khám!" });
+      if (err2) return res.status(500).json({ message: "Lỗi kiểm tra lịch sử lưu trú!" });
 
       const count = lsResults[0].count;
       if (count > 0 && force !== "true") {
         return res.json({
           requireConfirm: true,
-          message: `⚠️ Hồ sơ này có ${count} bản ghi lịch sử khám. Bạn có muốn xóa tất cả không?`,
+          message: `⚠️ Hồ sơ này có ${count} bản ghi lịch sử lưu trú. Bạn có muốn xóa tất cả không?`,
         });
       }
 
@@ -1552,31 +1567,32 @@ app.delete("/api/admin/hosoyte/:id", authenticateToken, requireAdmin, (req, res)
         { sql: delHS, params: [id] },
       ], () => {
         const logMsg = count > 0
-          ? `Admin xóa hồ sơ y tế #${id} cùng ${count} lịch sử khám bệnh`
-          : `Admin xóa hồ sơ y tế #${id}`;
+          ? `Admin xóa hồ sơ lưu trú #${id} cùng ${count} lịch sử lưu trú`
+          : `Admin xóa hồ sơ lưu trú #${id}`;
         logActivity("XÓA HỒ SƠ", logMsg);
         res.json({
           success: true,
           message: count > 0
-            ? "🗑️ Đã xóa hồ sơ y tế và toàn bộ lịch sử khám liên quan!"
-            : "🗑️ Đã xóa hồ sơ y tế thành công!",
+            ? "🗑️ Đã xóa hồ sơ lưu trú và toàn bộ lịch sử lưu trú liên quan!"
+            : "🗑️ Đã xóa hồ sơ lưu trú thành công!",
         });
       }, (deleteErr) => {
-        console.error("❌ Lỗi khi xóa hồ sơ y tế:", deleteErr);
-        res.status(500).json({ message: "Lỗi khi xóa hồ sơ y tế!" });
+        console.error("❌ Lỗi khi xóa hồ sơ lưu trú:", deleteErr);
+        res.status(500).json({ message: "Lỗi khi xóa hồ sơ lưu trú!" });
       });
     });
   });
 });
 
 
-// ================== API QUẢN LÝ LỊCH SỬ KHÁM BỆNH (ADMIN) ==================
+// ================== API QUẢN LÝ LỊCH SỬ LƯU TRÚ & HÓA ĐƠN (ADMIN) ==================
 
-// 📋 Lấy tất cả lịch sử khám bệnh
-app.get("/api/admin/lichsu", authenticateToken, requireAdmin, (req, res) => {
+// 📋 Lấy tất cả lịch sử lưu trú & hóa đơn
+app.get(["/api/admin/lichsu", "/api/admin/lichsuluutru"], authenticateToken, requireAdmin, (req, res) => {
   const sql = `
     SELECT ls.idLS, ls.ngayKham, ls.ketLuan, ls.chiTiet,
-           b.hoTenBacSi AS tenBacSi, k.tenKhoa AS tenKhoa, h.idHoSoYTe
+           b.hoTenBacSi AS tenBacSi, k.tenKhoa AS tenKhoa, h.idHoSoYTe,
+           b.hoTenBacSi AS tenCanPhong, k.tenKhoa AS tenLoaiPhong, h.idHoSoYTe AS idHoSoLuuTru
     FROM LICHSUKHAMBENH ls
     JOIN BACSI b ON ls.idBacSi = b.idBacSi
     JOIN KHOA k ON ls.idKhoa = k.idKhoa
@@ -1585,22 +1601,23 @@ app.get("/api/admin/lichsu", authenticateToken, requireAdmin, (req, res) => {
   `;
   db.query(sql, (err, results) => {
     if (err) {
-      console.error("❌ Lỗi khi lấy lịch sử khám:", err);
-      return res.status(500).json({ message: "Lỗi khi lấy danh sách lịch sử khám!" });
+      console.error("❌ Lỗi khi lấy lịch sử lưu trú:", err);
+      return res.status(500).json({ message: "Lỗi khi lấy danh sách lịch sử lưu trú!" });
     }
     res.json(results);
   });
 });
 
-// 📋 Lấy 1 lịch sử khám bệnh theo ID
-app.get("/api/admin/lichsu/:id", authenticateToken, requireAdmin, (req, res) => {
+// 📋 Lấy 1 lịch sử lưu trú theo ID
+app.get(["/api/admin/lichsu/:id", "/api/admin/lichsuluutru/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return res.status(400).json({ message: "ID không hợp lệ!" });
 
   const sql = `
     SELECT ls.idLS, ls.ngayKham, ls.ketLuan, ls.chiTiet,
            ls.idBacSi, ls.idKhoa, ls.idHoSoYTe,
-           b.hoTenBacSi AS tenBacSi, k.tenKhoa AS tenKhoa
+           b.hoTenBacSi AS tenBacSi, k.tenKhoa AS tenKhoa,
+           b.hoTenBacSi AS tenCanPhong, k.tenKhoa AS tenLoaiPhong, h.idHoSoYTe AS idHoSoLuuTru
     FROM LICHSUKHAMBENH ls
     JOIN BACSI b ON ls.idBacSi = b.idBacSi
     JOIN KHOA k ON ls.idKhoa = k.idKhoa
@@ -1608,20 +1625,24 @@ app.get("/api/admin/lichsu/:id", authenticateToken, requireAdmin, (req, res) => 
     WHERE ls.idLS = ? LIMIT 1
   `;
   db.query(sql, [id], (err, results) => {
-    if (err) return res.status(500).json({ message: "Lỗi khi lấy chi tiết lịch sử khám!" });
+    if (err) return res.status(500).json({ message: "Lỗi khi lấy chi tiết lịch sử lưu trú!" });
     if (results.length === 0) return res.status(404).json({ message: "Không tìm thấy bản ghi!" });
     res.json(results[0]);
   });
 });
 
-// ➕ Thêm lịch sử khám bệnh
-app.post("/api/admin/lichsu", authenticateToken, requireAdmin, (req, res) => {
-  const { ngayKham, ketLuan, chiTiet, idBacSi, idKhoa, idHoSoYTe } = req.body;
+// ➕ Thêm lịch sử lưu trú & hóa đơn
+app.post(["/api/admin/lichsu", "/api/admin/lichsuluutru"], authenticateToken, requireAdmin, (req, res) => {
+  const { ngayKham, ketLuan, chiTiet } = req.body;
+  const idBacSi = req.body.idBacSi || req.body.idCanPhong;
+  const idKhoa = req.body.idKhoa || req.body.idLoaiPhong;
+  const idHoSoYTe = req.body.idHoSoYTe || req.body.idHoSoLuuTru;
+
   if (!ngayKham || !ketLuan || !String(ketLuan).trim() || !idBacSi || !idKhoa || !idHoSoYTe)
     return res.status(400).json({ message: "⚠️ Thiếu thông tin bắt buộc!" });
 
   const formattedNgay = normalizeDateInput(ngayKham, false);
-  if (!formattedNgay) return res.status(400).json({ message: "Ngày khám không hợp lệ!" });
+  if (!formattedNgay) return res.status(400).json({ message: "Ngày trả phòng không hợp lệ!" });
 
   const safeKetLuan = escapeHtml(String(ketLuan).trim());
   const safeChiTiet = escapeHtml(chiTiet || "");
@@ -1632,20 +1653,24 @@ app.post("/api/admin/lichsu", authenticateToken, requireAdmin, (req, res) => {
     const sql = `INSERT INTO LICHSUKHAMBENH (ngayKham, ketLuan, chiTiet, idBacSi, idKhoa, idHoSoYTe) VALUES (?, ?, ?, ?, ?, ?)`;
     db.query(sql, [formattedNgay, safeKetLuan, safeChiTiet, idBacSi, idKhoa, idHoSoYTe], (err) => {
       if (err) {
-        console.error("❌ Lỗi khi thêm lịch sử khám:", err);
-        return res.status(500).json({ message: "Không thể thêm lịch sử khám!" });
+        console.error("❌ Lỗi khi thêm lịch sử lưu trú:", err);
+        return res.status(500).json({ message: "Không thể thêm lịch sử lưu trú!" });
       }
-      logActivity("THÊM LỊCH SỬ KHÁM", `Admin thêm lịch sử khám bệnh (Hồ sơ #${idHoSoYTe}): ${safeKetLuan}`);
-      res.json({ success: true, message: "✅ Thêm lịch sử khám thành công!" });
+      logActivity("THÊM KỲ NGHỈ", `Admin thêm kỳ nghỉ hoàn tất (Hồ sơ #${idHoSoYTe}): ${safeKetLuan}`);
+      res.json({ success: true, message: "✅ Thêm lịch sử lưu trú thành công!" });
     });
   });
 });
 
-// ✏️ Sửa lịch sử khám bệnh
-app.put("/api/admin/lichsu/:id", authenticateToken, requireAdmin, (req, res) => {
+// ✏️ Sửa lịch sử lưu trú & hóa đơn
+app.put(["/api/admin/lichsu/:id", "/api/admin/lichsuluutru/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return res.status(400).json({ message: "ID không hợp lệ!" });
-  const { ngayKham, ketLuan, chiTiet, idBacSi, idKhoa, idHoSoYTe } = req.body;
+  const { ngayKham, ketLuan, chiTiet } = req.body;
+  const idBacSi = req.body.idBacSi || req.body.idCanPhong;
+  const idKhoa = req.body.idKhoa || req.body.idLoaiPhong;
+  const idHoSoYTe = req.body.idHoSoYTe || req.body.idHoSoLuuTru;
+
   if (!ngayKham || !ketLuan || !String(ketLuan).trim() || !idBacSi || !idKhoa || !idHoSoYTe)
     return res.status(400).json({ message: "⚠️ Thiếu thông tin cập nhật!" });
 
@@ -1660,16 +1685,16 @@ app.put("/api/admin/lichsu/:id", authenticateToken, requireAdmin, (req, res) => 
 
     const sql = `UPDATE LICHSUKHAMBENH SET ngayKham=?, ketLuan=?, chiTiet=?, idBacSi=?, idKhoa=?, idHoSoYTe=? WHERE idLS=?`;
     db.query(sql, [formattedNgay, safeKetLuan, safeChiTiet, idBacSi, idKhoa, idHoSoYTe, id], (err, result) => {
-      if (err) return res.status(500).json({ message: "Không thể cập nhật lịch sử khám!" });
+      if (err) return res.status(500).json({ message: "Không thể cập nhật lịch sử lưu trú!" });
       if (result.affectedRows === 0) return res.status(404).json({ message: "Không tìm thấy bản ghi!" });
-      logActivity("CẬP NHẬT LỊCH SỬ", `Admin cập nhật lịch sử khám #${idHoSoYTe}`);
-      res.json({ success: true, message: "✅ Cập nhật lịch sử khám thành công!" });
+      logActivity("CẬP NHẬT KỲ NGHỈ", `Admin cập nhật kỳ nghỉ #${idHoSoYTe}`);
+      res.json({ success: true, message: "✅ Cập nhật lịch sử lưu trú thành công!" });
     });
   });
 });
 
-// 🗑️ Xóa lịch sử khám bệnh
-app.delete("/api/admin/lichsu/:id", authenticateToken, requireAdmin, (req, res) => {
+// 🗑️ Xóa lịch sử lưu trú & hóa đơn
+app.delete(["/api/admin/lichsu/:id", "/api/admin/lichsuluutru/:id"], authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) return res.status(400).json({ message: "ID không hợp lệ!" });
 
@@ -1680,10 +1705,10 @@ app.delete("/api/admin/lichsu/:id", authenticateToken, requireAdmin, (req, res) 
 
     const sql = "DELETE FROM LICHSUKHAMBENH WHERE idLS = ?";
     db.query(sql, [id], (err, result) => {
-      if (err) return res.status(500).json({ message: "Không thể xóa lịch sử khám!" });
+      if (err) return res.status(500).json({ message: "Không thể xóa lịch sử lưu trú!" });
       if (result.affectedRows === 0) return res.status(404).json({ message: "Không tìm thấy bản ghi cần xóa!" });
-      logActivity("XÓA LỊCH SỬ KHÁM", `Admin xóa lịch sử khám #${idHoSoYTe}`);
-      res.json({ success: true, message: "🗑️ Xóa lịch sử khám thành công!" });
+      logActivity("XÓA KỲ NGHỈ", `Admin xóa kỳ nghỉ #${idHoSoYTe}`);
+      res.json({ success: true, message: "🗑️ Xóa lịch sử lưu trú thành công!" });
     });
   });
 });
@@ -1699,16 +1724,20 @@ app.get("/api/dashboard", authenticateToken, requireAdmin, (req, res) => {
   db.query(countHoSo, (err1, hosoResult) => {
     if (err1) return res.status(500).json({ error: "Lỗi khi đếm hồ sơ" });
     db.query(countBacSi, (err2, bacsiResult) => {
-      if (err2) return res.status(500).json({ error: "Lỗi khi đếm bác sĩ" });
+      if (err2) return res.status(500).json({ error: "Lỗi khi đếm căn" });
       db.query(countLichToday, (err3, todayResult) => {
-        if (err3) return res.status(500).json({ error: "Lỗi khi đếm lịch hôm nay" });
+        if (err3) return res.status(500).json({ error: "Lỗi khi đếm đơn hôm nay" });
         db.query(countLichMoi, (err4, moiResult) => {
-          if (err4) return res.status(500).json({ error: "Lỗi khi đếm lịch mới" });
+          if (err4) return res.status(500).json({ error: "Lỗi khi đếm đơn mới" });
           res.json({
             totalRecords: hosoResult[0].total || 0,
             totalDoctors: bacsiResult[0].total || 0,
             todayAppointments: todayResult[0].total || 0,
-            newContacts: moiResult[0].total || 0
+            newContacts: moiResult[0].total || 0,
+            totalGuests: hosoResult[0].total || 0,
+            totalRooms: bacsiResult[0].total || 0,
+            todayCheckins: todayResult[0].total || 0,
+            newBookings: moiResult[0].total || 0
           });
         });
       });
