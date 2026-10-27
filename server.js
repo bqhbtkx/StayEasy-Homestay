@@ -28,18 +28,29 @@ const crypto = require("crypto");
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
-const allowedOrigins = new Set([
+
+// Trust proxy nếu chạy đằng sau reverse proxy/load balancer
+if (process.env.TRUST_PROXY === "true" || process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
+// Cấu hình CORS Whitelist chặt chẽ (đọc từ .env, loại bỏ 'null' để chống tấn công CSRF / Sandbox bypass)
+const envOrigins = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map(o => o.trim())
+  .filter(Boolean);
+const defaultOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://localhost:5500",
   "http://127.0.0.1:5500",
-  "null",
-]);
+];
+const allowedOrigins = new Set([...defaultOrigins, ...envOrigins]);
 
 app.use(cors({
   origin(origin, callback) {
     if (!origin || allowedOrigins.has(origin)) return callback(null, true);
-    return callback(null, false);
+    return callback(new Error("CORS origin not allowed: " + origin), false);
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -119,6 +130,16 @@ function hashPassword(password) {
   return `${PASSWORD_HASH_ALGORITHM}$${PASSWORD_HASH_ITERATIONS}$${salt}$${hash}`;
 }
 
+function hashPasswordAsync(password) {
+  return new Promise((resolve, reject) => {
+    const salt = crypto.randomBytes(16).toString("hex");
+    crypto.pbkdf2(String(password), salt, PASSWORD_HASH_ITERATIONS, 32, "sha256", (err, derivedKey) => {
+      if (err) return reject(err);
+      resolve(`${PASSWORD_HASH_ALGORITHM}$${PASSWORD_HASH_ITERATIONS}$${salt}$${derivedKey.toString("hex")}`);
+    });
+  });
+}
+
 function isHashedPassword(value) {
   return typeof value === "string" && value.startsWith(`${PASSWORD_HASH_ALGORITHM}$`);
 }
@@ -145,11 +166,36 @@ function verifyPassword(password, storedPassword) {
   return safeCompareString(computedHash, expectedHash);
 }
 
+function verifyPasswordAsync(password, storedPassword) {
+  return new Promise((resolve) => {
+    if (!isHashedPassword(storedPassword)) {
+      return resolve(safeCompareString(password, storedPassword));
+    }
+
+    const parts = storedPassword.split("$");
+    if (parts.length !== 4) return resolve(false);
+    const [, iterationsRaw, salt, expectedHash] = parts;
+    const iterations = Number(iterationsRaw);
+    if (!Number.isInteger(iterations) || iterations <= 0) return resolve(false);
+
+    crypto.pbkdf2(String(password), salt, iterations, 32, "sha256", (err, derivedKey) => {
+      if (err) return resolve(false);
+      resolve(safeCompareString(derivedKey.toString("hex"), expectedHash));
+    });
+  });
+}
+
 function upgradePasswordIfNeeded(table, passwordColumn, idColumn, id, plainPassword) {
   if (!isValidId(id)) return;
+  const allowedTables = ["QUANTRIVIEN", "KHACHHANG"];
+  if (!allowedTables.includes(table)) return;
   const sql = `UPDATE ${table} SET ${passwordColumn} = ? WHERE ${idColumn} = ?`;
-  db.query(sql, [hashPassword(plainPassword), id], (err) => {
-    if (err) console.error("❌ Lỗi nâng cấp hash mật khẩu:", err);
+  hashPasswordAsync(plainPassword).then(hashed => {
+    db.query(sql, [hashed, id], (err) => {
+      if (err) console.error("❌ Lỗi nâng cấp hash mật khẩu:", err);
+    });
+  }).catch(err => {
+    console.error("❌ Lỗi sinh hash async:", err);
   });
 }
 
@@ -164,27 +210,52 @@ function escapeHtml(text) {
     .replace(/'/g, "&#039;");
 }
 
-// In-memory rate limiter chống brute force login
-const loginAttempts = new Map();
-function rateLimitLogin(req, res, next) {
-  const ip = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-  const now = Date.now();
-  const attempts = loginAttempts.get(ip) || [];
-  const recentAttempts = attempts.filter(time => now - time < 60000);
+// Bộ tạo Rate Limiter có cơ chế tự động dọn dẹp TTL chống Memory Leak
+function createRateLimiter({ windowMs = 60000, maxAttempts = 5, message = "Quá nhiều yêu cầu. Vui lòng thử lại sau!" }) {
+  const store = new Map();
 
-  if (recentAttempts.length >= 5) {
-    return res.status(429).json({ message: "Quá nhiều lần đăng nhập thất bại. Vui lòng thử lại sau 1 phút!" });
-  }
+  const sweepInterval = setInterval(() => {
+    const now = Date.now();
+    for (const [key, timestamps] of store.entries()) {
+      const valid = timestamps.filter(t => now - t < windowMs);
+      if (valid.length === 0) store.delete(key);
+      else store.set(key, valid);
+    }
+  }, Math.max(windowMs, 30000));
+  sweepInterval.unref();
 
-  req.recordFailedAttempt = () => {
-    recentAttempts.push(Date.now());
-    loginAttempts.set(ip, recentAttempts);
+  return function rateLimiter(req, res, next) {
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    const now = Date.now();
+    const attempts = store.get(ip) || [];
+    const recentAttempts = attempts.filter(t => now - t < windowMs);
+
+    if (recentAttempts.length >= maxAttempts) {
+      return res.status(429).json({ message });
+    }
+
+    req.recordFailedAttempt = () => {
+      recentAttempts.push(Date.now());
+      store.set(ip, recentAttempts);
+    };
+    req.clearFailedAttempts = () => {
+      store.delete(ip);
+    };
+    next();
   };
-  req.clearFailedAttempts = () => {
-    loginAttempts.delete(ip);
-  };
-  next();
 }
+
+const rateLimitLogin = createRateLimiter({
+  windowMs: 60000,
+  maxAttempts: 5,
+  message: "Quá nhiều lần đăng nhập thất bại. Vui lòng thử lại sau 1 phút!",
+});
+
+const rateLimitRegister = createRateLimiter({
+  windowMs: 60000,
+  maxAttempts: 10,
+  message: "Quá nhiều yêu cầu đăng ký tài khoản. Vui lòng thử lại sau 1 phút!",
+});
 
 // Security Headers
 app.use((req, res, next) => {
@@ -214,6 +285,29 @@ if (fs.existsSync(adminDir)) {
 }
 app.get("/", (_req, res) => {
   res.redirect("/customer/trangchupre/trangchu1.html");
+});
+
+// Endpoint giám sát sức khỏe hệ thống (Health Check)
+app.get(["/health", "/api/health"], (_req, res) => {
+  db.query("SELECT 1 AS status", (err) => {
+    if (err) {
+      return res.status(503).json({
+        status: "error",
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        database: "disconnected",
+        error: err.message,
+      });
+    }
+    res.json({
+      status: "healthy",
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      database: "connected",
+      service: "StayEasy Homestay API",
+      version: "1.0.0",
+    });
+  });
 });
 
 // Middleware xác thực token
@@ -400,7 +494,7 @@ function runTransaction(queries, onSuccess, onError) {
 
 
 // ================== API ĐĂNG KÝ (REGISTER) ==================
-app.post("/register", (req, res) => {
+app.post("/register", rateLimitRegister, async (req, res) => {
   const { hoten, sdt, matkhau } = req.body;
 
   if (!hoten || !sdt || !matkhau) {
@@ -419,7 +513,7 @@ app.post("/register", (req, res) => {
   const safeHoten = escapeHtml(hoten);
 
   const checkSql = "SELECT idKH FROM KHACHHANG WHERE sdt = ?";
-  db.query(checkSql, [sdt], (err, results) => {
+  db.query(checkSql, [sdt], async (err, results) => {
     if (err) {
       console.error("Lỗi khi kiểm tra số điện thoại:", err);
       return res.status(500).json({ message: "Lỗi máy chủ khi kiểm tra số điện thoại!" });
@@ -427,6 +521,14 @@ app.post("/register", (req, res) => {
 
     if (results.length > 0) {
       return res.status(400).json({ message: "Số điện thoại này đã được đăng ký!" });
+    }
+
+    let hashedPassword;
+    try {
+      hashedPassword = await hashPasswordAsync(matkhau);
+    } catch (hashErr) {
+      console.error("Lỗi băm mật khẩu async:", hashErr);
+      return res.status(500).json({ message: "Lỗi xử lý mật khẩu!" });
     }
 
     db.getConnection((beginErr, connection) => {
@@ -442,7 +544,7 @@ app.post("/register", (req, res) => {
           INSERT INTO KHACHHANG (hoTen, sdt, matKhau, gioiTinh, ngayThangNamSinh, cccd, diaChi)
           VALUES (?, ?, ?, NULL, NULL, NULL, NULL)
         `;
-        const values = [safeHoten, sdt, hashPassword(matkhau)];
+        const values = [safeHoten, sdt, hashedPassword];
         connection.query(insertSql, values, (err2, result) => {
           if (err2) {
             console.error("Lỗi khi thêm khách hàng:", err2);
@@ -498,34 +600,43 @@ app.post("/login", rateLimitLogin, (req, res) => {
 
   // Kiểm tra admin trước
   const sqlAdmin = "SELECT idQTV, sdtQTV, matKhauQTV FROM QUANTRIVIEN WHERE sdtQTV = ? LIMIT 1";
-  db.query(sqlAdmin, [sdt], (err, adminResults) => {
+  db.query(sqlAdmin, [sdt], async (err, adminResults) => {
     if (err) return res.status(500).json({ message: "Lỗi máy chủ!" });
 
-    if (adminResults.length > 0 && verifyPassword(matkhau, adminResults[0].matKhauQTV)) {
-      req.clearFailedAttempts();
-      const token = generateToken({ id: adminResults[0].idQTV, sdt: sdt, role: "admin" });
-      if (!isHashedPassword(adminResults[0].matKhauQTV)) {
-        upgradePasswordIfNeeded("QUANTRIVIEN", "matKhauQTV", "idQTV", adminResults[0].idQTV, matkhau);
-      }
-      logActivity("ĐĂNG NHẬP ADMIN", `Admin đăng nhập (SĐT: ${sdt})`, adminResults[0].idQTV);
+    if (adminResults.length > 0) {
+      const isMatch = await verifyPasswordAsync(matkhau, adminResults[0].matKhauQTV);
+      if (isMatch) {
+        req.clearFailedAttempts();
+        const token = generateToken({ id: adminResults[0].idQTV, sdt: sdt, role: "admin" });
+        if (!isHashedPassword(adminResults[0].matKhauQTV)) {
+          upgradePasswordIfNeeded("QUANTRIVIEN", "matKhauQTV", "idQTV", adminResults[0].idQTV, matkhau);
+        }
+        logActivity("ĐĂNG NHẬP ADMIN", `Admin đăng nhập (SĐT: ${sdt})`, adminResults[0].idQTV);
 
-      return res.json({
-        message: "Đăng nhập thành công!",
-        isAdmin: true,
-        token: token,
-        admin: {
-          idQTV: adminResults[0].idQTV,
-          sdt: adminResults[0].sdtQTV,
-        },
-      });
+        return res.json({
+          message: "Đăng nhập thành công!",
+          isAdmin: true,
+          token: token,
+          admin: {
+            idQTV: adminResults[0].idQTV,
+            sdt: adminResults[0].sdtQTV,
+          },
+        });
+      }
     }
 
     // Nếu không phải admin, kiểm tra khách hàng
     const sqlUser = "SELECT idKH, hoTen, sdt, matKhau FROM KHACHHANG WHERE sdt = ? LIMIT 1";
-    db.query(sqlUser, [sdt], (err2, userResults) => {
+    db.query(sqlUser, [sdt], async (err2, userResults) => {
       if (err2) return res.status(500).json({ message: "Lỗi máy chủ!" });
 
-      if (userResults.length === 0 || !verifyPassword(matkhau, userResults[0].matKhau)) {
+      if (userResults.length === 0) {
+        req.recordFailedAttempt();
+        return res.status(401).json({ message: errorMsg });
+      }
+
+      const isMatch = await verifyPasswordAsync(matkhau, userResults[0].matKhau);
+      if (!isMatch) {
         req.recordFailedAttempt();
         return res.status(401).json({ message: errorMsg });
       }
@@ -675,10 +786,10 @@ app.post(["/api/dat-lich", "/api/dat-phong"], authenticateToken, (req, res) => {
   const formattedGio = normalizeTimeInput(gioKham);
   if (!formattedGio) return res.status(400).json({ message: "Giờ check-in không hợp lệ!" });
 
-  // Nếu client không gửi idKhoa, lấy từ phòng
+  // Nếu client không gửi idKhoa, lấy từ phòng (khóa hàng căn phòng với FOR UPDATE để ngăn ngừa race condition overbooking)
   const resolveDoctorSql = isValidId(idKhoa)
-    ? "SELECT idBacSi, idKhoa FROM BACSI WHERE idBacSi = ? AND idKhoa = ?"
-    : "SELECT idBacSi, idKhoa FROM BACSI WHERE idBacSi = ?";
+    ? "SELECT idBacSi, idKhoa FROM BACSI WHERE idBacSi = ? AND idKhoa = ? FOR UPDATE"
+    : "SELECT idBacSi, idKhoa FROM BACSI WHERE idBacSi = ? FOR UPDATE";
   const resolveParams = isValidId(idKhoa) ? [idBacSi, idKhoa] : [idBacSi];
 
   db.getConnection((connErr, connection) => {
@@ -1716,31 +1827,35 @@ app.delete(["/api/admin/lichsu/:id", "/api/admin/lichsuluutru/:id"], authenticat
 
 // ================== API DASHBOARD THỐNG KÊ (ADMIN) ==================
 app.get("/api/dashboard", authenticateToken, requireAdmin, (req, res) => {
-  const countHoSo = "SELECT COUNT(*) AS total FROM HOSOYTE";
-  const countBacSi = "SELECT COUNT(*) AS total FROM BACSI";
-  const countLichToday = `SELECT COUNT(*) AS total FROM LICHKHAM WHERE DATE(ngayKham) = CURDATE()`;
-  const countLichMoi = `SELECT COUNT(*) AS total FROM LICHKHAM WHERE LOWER(trangThai) = 'chờ xác nhận'`;
+  // Tối ưu hóa: 1 truy vấn tổng hợp duy nhất thay vì 4 truy vấn waterfall tuần tự
+  const sql = `
+    SELECT
+      (SELECT COUNT(*) FROM HOSOYTE) AS totalRecords,
+      (SELECT COUNT(*) FROM BACSI) AS totalDoctors,
+      (SELECT COUNT(*) FROM LICHKHAM WHERE ngayKham = CURDATE()) AS todayAppointments,
+      (SELECT COUNT(*) FROM LICHKHAM WHERE LOWER(trangThai) = 'chờ xác nhận') AS newContacts
+  `;
 
-  db.query(countHoSo, (err1, hosoResult) => {
-    if (err1) return res.status(500).json({ error: "Lỗi khi đếm hồ sơ" });
-    db.query(countBacSi, (err2, bacsiResult) => {
-      if (err2) return res.status(500).json({ error: "Lỗi khi đếm căn" });
-      db.query(countLichToday, (err3, todayResult) => {
-        if (err3) return res.status(500).json({ error: "Lỗi khi đếm đơn hôm nay" });
-        db.query(countLichMoi, (err4, moiResult) => {
-          if (err4) return res.status(500).json({ error: "Lỗi khi đếm đơn mới" });
-          res.json({
-            totalRecords: hosoResult[0].total || 0,
-            totalDoctors: bacsiResult[0].total || 0,
-            todayAppointments: todayResult[0].total || 0,
-            newContacts: moiResult[0].total || 0,
-            totalGuests: hosoResult[0].total || 0,
-            totalRooms: bacsiResult[0].total || 0,
-            todayCheckins: todayResult[0].total || 0,
-            newBookings: moiResult[0].total || 0
-          });
-        });
-      });
+  db.query(sql, (err, rows) => {
+    if (err) {
+      console.error("❌ Lỗi khi lấy dữ liệu dashboard:", err);
+      return res.status(500).json({ error: "Lỗi máy chủ khi lấy dữ liệu thống kê!" });
+    }
+    const data = rows[0] || {};
+    const totalRecords = Number(data.totalRecords || 0);
+    const totalDoctors = Number(data.totalDoctors || 0);
+    const todayAppointments = Number(data.todayAppointments || 0);
+    const newContacts = Number(data.newContacts || 0);
+
+    res.json({
+      totalRecords,
+      totalDoctors,
+      todayAppointments,
+      newContacts,
+      totalGuests: totalRecords,
+      totalRooms: totalDoctors,
+      todayCheckins: todayAppointments,
+      newBookings: newContacts,
     });
   });
 });
@@ -1748,10 +1863,10 @@ app.get("/api/dashboard", authenticateToken, requireAdmin, (req, res) => {
 // 📈 Lấy số lịch khám mỗi ngày (30 ngày gần nhất)
 app.get("/api/dashboard/daily-appointments", authenticateToken, requireAdmin, (req, res) => {
   const sql = `
-    SELECT DATE(ngayKham) AS date, COUNT(*) AS count
+    SELECT ngayKham AS date, COUNT(*) AS count
     FROM LICHKHAM
     WHERE ngayKham >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-    GROUP BY DATE(ngayKham) ORDER BY DATE(ngayKham) ASC
+    GROUP BY ngayKham ORDER BY ngayKham ASC
   `;
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ message: "Lỗi máy chủ khi lấy dữ liệu biểu đồ!" });
@@ -1802,8 +1917,56 @@ app.get("/api/hoatdong", authenticateToken, requireAdmin, (req, res) => {
 });
 
 
-// ================== START SERVER ==================
-app.listen(PORT, () => {
-  console.log(`🌐 StayEasy Web Server chạy tại http://localhost:${PORT}`);
-  console.log(`🏡 Hệ thống Quản trị Homestay StayEasy sẵn sàng phục vụ!`);
+// ================== XỬ LÝ LỖI TẬP TRUNG & 404 (RELIABILITY) ==================
+
+// 404 handler cho các API endpoint không tồn tại
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: `API endpoint không tồn tại: ${req.method} ${req.originalUrl}` });
 });
+
+// Middleware xử lý lỗi tập trung chuẩn Express
+app.use((err, req, res, _next) => {
+  console.error("❌ Unhandled Application Error:", err);
+  const statusCode = err.status || err.statusCode || 500;
+  res.status(statusCode).json({
+    message: statusCode === 500 ? "Lỗi máy chủ nội bộ. Vui lòng thử lại sau!" : err.message,
+    ...(process.env.NODE_ENV === "development" ? { error: err.message, stack: err.stack } : {}),
+  });
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("❌ Unhandled Promise Rejection at:", promise, "reason:", reason);
+});
+process.on("uncaughtException", (error) => {
+  console.error("❌ Uncaught Exception:", error);
+});
+
+
+// ================== START SERVER & MODULE EXPORT ==================
+let serverInstance = null;
+if (require.main === module) {
+  serverInstance = app.listen(PORT, () => {
+    console.log(`🌐 StayEasy Web Server chạy tại http://localhost:${PORT}`);
+    console.log(`🏡 Hệ thống Quản trị Homestay StayEasy sẵn sàng phục vụ!`);
+  });
+}
+
+const shutdown = (signal) => {
+  console.log(`\n🛑 Nhận tín hiệu ${signal}. Đang đóng các kết nối sạch sẽ...`);
+  if (serverInstance) {
+    serverInstance.close(() => {
+      console.log("🔒 Đã đóng HTTP server.");
+      db.end((err) => {
+        if (err) console.error("❌ Lỗi khi đóng database pool:", err);
+        else console.log("🔒 Đã đóng Database Pool.");
+        process.exit(0);
+      });
+    });
+  } else {
+    db.end(() => process.exit(0));
+  }
+};
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
+
+module.exports = { app, db, server: serverInstance };

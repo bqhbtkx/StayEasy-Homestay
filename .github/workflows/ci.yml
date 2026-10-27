@@ -1,0 +1,57 @@
+name: StayEasy SQA Continuous Integration Pipeline
+
+on:
+  push:
+    branches: [ ver-2, main, master ]
+  pull_request:
+    branches: [ ver-2, main, master ]
+
+jobs:
+  sqa-quality-gate:
+    name: SQA Quality Gate (IEEE 730 & IEEE 829)
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ttcsn
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping -proot" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Node.js Runtime (v20.x)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 3. Install Project Dependencies
+        run: npm ci || npm install
+
+      - name: 4. Import StayEasy MySQL Schema & Seed Data
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot ttcsn < database.sql
+
+      - name: 5. Copy Environment Configuration
+        run: |
+          cp .env.example .env || true
+
+      - name: 6. Execute IEEE 829 Automated Test Suite
+        env:
+          PORT: 3000
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: root
+          DB_NAME: ttcsn
+          JWT_SECRET: stayeasy_ci_secret_key_testing_environment_2026_super_secure
+        run: npm test
+
+      - name: 7. Security Dependency Audit
+        run: npm audit --audit-level=critical

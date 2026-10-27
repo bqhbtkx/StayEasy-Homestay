@@ -8,3 +8,5 @@ docx_render/
 pdf_pages/
 vector_db/
 *.psd
+~$*
+
